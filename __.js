@@ -1,5 +1,28 @@
 /* **************************************************
 *
+* IE8 does not support the indexOf function for arrays
+* If it does not exist, add it
+*
+****** */
+if (!Array.indexOf) {
+  Array.prototype.indexOf = function (obj, start) {
+    for (var i = (start || 0); i < this.length; i++) {
+      if (this[i] == obj) {
+        return i;
+      }
+    }
+    return -1;
+  }
+}
+/* ******
+*
+* End
+*
+********************************************** */
+
+
+/* **************************************************
+*
 * New Framework
 * Primary purpose is to hopefully keep code organized
 * The model, view, and controller classes can be extended
@@ -94,15 +117,326 @@ var __ = {
 	*
 	****** */
 	model : {
+
+
 		extend : function(source, methods) {
 			if ( typeof this[source] == 'undefined' ) {
 				this[source] = methods;
 			} else {
 				for ( var prop in methods ) {
 					this[source][prop] = methods[prop];
-				}	
+				}
 			}
+		},
+
+
+
+
+		Collection : {
+
+
+			/* **********************************************
+			* 
+			* Returns a given collection
+			* Determines if the requested collection is set
+			* and is an object. If not, returns nothing
+			* and prints error to console.
+			*
+			****** */
+			returnCollection : function(Collection) {
+				var arrColl = Collection.split('.');
+				if ( arrColl.length > 1 ) {
+					arr = '';
+					for ( var prop in arrColl ) {
+						arr += "['" + arrColl[prop] + "']";
+					}
+				
+					collection = eval('this' + arr );
+				} else {
+					collection = this[Collection];
+				}
+
+				if ( typeof collection !== 'object' ) {
+					console.log('The collection you requested is not an object');
+					return;
+
+				} else {
+					return collection;
+				}
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+			/* **********************************************
+			* 
+			* Returns a given collection
+			*
+			****** */
+			get : function(Collection, where) {
+				collection = this.returnCollection(Collection);
+
+				if ( typeof where !== 'undefined' ) {
+					needle = where['key'];
+					val    = where['equals'];
+
+					if ( typeof collection.length !== 'undefined' ) {
+						for ( var i=0; i<collection.length; i++ ) {
+							if ( typeof(collection[i][needle]) !== 'undefined' && collection[i][needle] == val ) {
+								return collection[i];
+							}
+						}
+					} else {
+						for ( var prop in collection ) {
+
+						}
+					}
+				}
+
+				return collection;
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+			/* **********************************************
+			* 
+			* adds a forEach loop to a collection
+			*
+			* Use :
+			*     __.model.collection.forEach('GridViewProfile.Columns', function(key, row) {
+			*         console.log(this[row]);
+			*     });
+			*
+			****** */
+			forEach : function(collection, callback, offset, rowCount) {
+				collection = this.returnCollection(collection);
+
+				if ( typeof collection !== 'object' ) {
+					console.log('The collection you requested is not an object');
+					return;
+
+				} else {
+					offset   = ( typeof offset !== 'undefined' ) ? offset : 0;
+					rowCount = ( typeof rowCount !== 'undefined' ) ? offset+rowCount : collection.length;
+					rowCount = ( rowCount > collection.length ) ? collection.length : rowCount;
+
+					if ( typeof collection.length !== 'undefined' ) {
+						for ( var i=offset; i<rowCount; i++ ) {
+							callback.call(collection, collection[i], i, this);
+						}
+					} else {
+						for ( var prop in collection ) {
+							callback.call(collection, collection[prop], prop, this);
+						}
+					}
+				}
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+			/* **********************************************
+			*
+			* adds a data model to the schema
+			*
+			*
+			****** */
+			set : function(objOptions) {
+				var defaults = {
+					name : '',
+					model      : {}
+				}
+				var options = __.setDefaults(objOptions, defaults);
+
+				if ( typeof options.model === 'object' ) {
+					this[options.name] = options.model;
+				} else {
+					console.log('The model is not an object or array')
+				}
+
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+			/* **********************************************
+			*
+			* insert a key/value into a schema
+			*
+			* Use :
+			*    __.model.schema.insertInto({
+			* 	      schema : 'nameOfArray',
+			*         -- as an object --
+			*         keyValue : { 
+			*             key : 'key', 
+			*             value : 'value of key' 
+			*         }
+			*         -- or -- 
+			* 	      key    : 23,
+			*         value  : 'value of key'
+			*    });
+			*
+			****** */
+			insertInto : function(objOptions) {
+				var defaults = {
+					key : '',
+					value : ''
+				};
+				var options = __.setDefaults(objOptions, defaults);
+
+				// key/value passed as an object
+				if ( typeof options.keyValue === 'object' ) {
+					this[options.Collection].push(options.key);
+				
+				// key and value passed separately
+				} else if ( options.key != '' ) {
+					var key = Array();
+					key[options.key] = options.value;
+					this[options.Collection].push(key);
+
+				// there was no key/value passed
+				} else {
+					console.log('A key/value was not passed correctly.');
+
+				}
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+			/* **********************************************
+			*
+			* insert a key/value into a schema
+			*
+			* Use :
+			*    __.model.Collection.update(
+			* 	     'nameOfCollection',
+			*        { 'key' : theKey, 'equals' : '25' },
+			*        { 'keyToUpdate' : 'New Value for Key' }
+			*    );
+			*
+			****** */
+			update : function(Collection, where, newKeys) {
+				collection = this.returnCollection(Collection);
+
+				needle = where['key'];
+				val    = where['equals'];
+
+				if ( typeof collection.length !== 'undefined' ) {
+					for ( var i=0; i<collection.length; i++ ) {
+						if ( typeof(collection[i][needle]) !== 'undefined' && collection[i][needle] == val ) {
+							for ( var prop in newKeys ) {
+								collection[i][prop] = newKeys[prop];
+							}
+						}
+					}
+
+					this.set({
+						name  : Collection,
+						model : collection
+					});
+
+				} else {
+					for ( var prop in collection ) {
+
+					}
+				}
+
+			},
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
+
+
+
+
+
+
+
+
+			/* **********************************************
+			*
+			* delete a key from a schema
+			*
+			* Use :
+			*    __.model.schema.deleteFrom({
+			* 	      schema : 'nameOfArray',
+			* 	      key    : 23 // key to remove
+			*    });
+			*
+			****** */
+			deleteFrom : function(objOptions) {
+				var defaults = { key : '' };
+				var options = __.setDefaults(objOptions, defaults);
+
+				// key was passed in
+				if ( options.key != '' ) {
+					this[options.Collection].splice(options.key,1);
+
+				// no key was passed in
+				} else {
+					console.log('A key was not passed correctly.');
+
+				}
+			}
+			/* ******
+			*
+			* End
+			*
+			********************************************** */
+
 		}
+
+
 	},
 	/* ******
 	*
@@ -177,7 +511,7 @@ var __ = {
 	*
 	*
 	****** */
-	dom : {
+/*	dom : {
 		extend : function(source, methods) {
 			if ( typeof  this[source] == 'undefined' ) {
 				this[source] = methods;
@@ -187,7 +521,7 @@ var __ = {
 				}	
 			}
 		}		
-	}
+	}*/
 	/* ******
 	*
 	* End
