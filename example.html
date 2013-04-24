@@ -1,0 +1,609 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    
+    <title>Stress Documentation</title> 
+    <link rel="stylesheet" type="text/css" href="fonts.css" />
+    <link rel="stylesheet" type="text/css" href="normalize.css" />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link rel="stylesheet" type="text/css" href="NotPartOfFramework/CSS/sh_acid.css" />
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_main.min.js"></script>
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript_dom.min.js"></script>
+    
+</head>
+<body onload="sh_highlightDocument();">
+    <section id="wrapper">
+        <header>
+            <h1>Documentation of the Stress Framework</h1>
+        </header>
+        <section>
+            <h2>Collections</h2>
+            <p>The core of the the Stress framework is Collections. Collections allow the view to work with data models and manipulate them when needed.</p>
+        </section>
+        <section id="container">
+<!-- SET -->
+            <div class="code-chunk">
+                <header><b>Set</b> a Collection</header>
+                <pre class="sh_javascript">
+__.model.Collection.set({
+    name : "MyCollection",
+    model : {
+        MyArray   : [1,2,3],
+        MyBoolean : true,
+        MyNull     : null,
+        MyNumber   : 123,
+        MyObject   : {
+            "a" : "b",
+            "c" : "d",
+            "e" : "f"
+        },
+        MyString : "Hello World"
+    }
+});
+                </pre>
+            </div>
+<!-- 
+    // SET 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    GET 
+-->
+            <div class="code-chunk">
+                <header><b>Get</b> a Collection</header>
+                <pre class="sh_javascript">
+// The entire Collection
+//     @CollectionName
+var MyCollection = __.model.Collection.get("MyCollection");
+
+// A Property from a Collection
+// Will return only the MyObject property within the MyCollection Collection
+//     @CollectionName.PropertyName
+var MyCollection = __.model.Collection.get("MyCollection.MyObject");
+                </pre>
+            </div>
+<!-- 
+    // GET 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    insertInto 
+-->
+            <div class="code-chunk">
+                <header><b>insertInto</b> a Collection</header>
+                <pre class="sh_javascript">
+// Insert a new key into a Collection. Used when a Collection is a single-dimensional array and not an object
+//     @CollectionName
+//     @value
+__.model.Collection.insetInto("MyCollection", 12345);
+
+// Insert a new Key/Value pair into a Collection. Used when a Collection is a multi-dimensional array/object
+//     @CollectionName
+//     @key
+//     @value
+__.model.Collection.insertInto("MyCollection", {
+    key   : 'MyNewKey',
+    value : [1,2,3,4]
+});
+                </pre>
+            </div>
+<!-- 
+    // insertInto 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    update 
+-->
+            <div class="code-chunk">
+                <header><b>Update</b> a Collection</header>
+                <pre class="sh_javascript">
+// Updates a key/property within a Collection
+//     @CollectionName
+//     @where
+//     @KeyValuePair
+__.model.Collection.update(
+    "MyCollection",                         // Name of the Collection
+    { key : "theKey", equals : 25 },        // Search criteria (where clause)
+    { NameOfPoperty : "New Value for Key" } // Name of key to update and its value
+);
+                </pre>
+            </div>
+<!-- 
+    // update 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    deleteFrom 
+-->
+            <div class="code-chunk">
+                <header><b>deleteFrom</b> a Collection</header>
+                <pre class="sh_javascript">
+// Deletes a key or property from the Collection
+//
+// the Collection is an single dimension array/object
+// specify the Collection and the array key or property
+//     @CollectionName
+//     @key
+__.model.schema.deleteFrom({
+    "MyCollection",    // Name of Collection
+    key : [23|"keyname"] // key to remove
+});
+
+// or if the you need to remove the key from an array within a collection
+//     @CollectionName
+//     @key
+//     @equals
+
+
+// ******
+// Example of a Collection Object
+
+__.model.Collection.set({
+    name : "MyCollectionObject",
+    model : Array(
+        { Id : 0, Title : "A Title" }, 
+        { Id : 1, Title : "Another Object"}, 
+        { Id : 2, Title : "This is cool"}, 
+        { Id : 3, Title : "Another Test Object" } 
+    )
+});
+
+__.model.Collection.deleteFrom({
+    "MyCollectionObject",  // Name of Collection
+    {
+        key : "Id" // Property Name in the Collection
+        equals : 2  // key in array
+    }
+});
+
+// @MyCollectionObject == Array(
+//     { Id : 0, Title : "A Title" }, 
+//     { Id : 1, Title : "Another Object"}, 
+//     { Id : 3, Title : "Another Test Object" } 
+// );
+
+
+// ******
+// Example of a Collection Array
+
+__.model.Collection.set({
+    name : "MyCollectionArray",
+    model : Array('apple', 'orange', 'banana', 'pepper')
+});
+
+__.model.Collection.deleteFrom("MyCollectionArray", 1);
+__.model.Collection.deleteFrom("MyCollectionArray", "orange");
+
+// @MyCollectionArray == Array('apple', 'banana', 'pepper')
+                </pre>
+            </div>
+<!-- 
+    // deleteFrom 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    search 
+-->
+            <div class="code-chunk">
+                <header><b>search</b> a Collection</header>
+                <pre class="sh_javascript">
+// Searches a collection for a given value
+// Can compare against another object if one is specified
+//     @Collection : "CollectionName"
+//     @where : { 
+//         key : "NameofCollectionKey", 
+//         equals : "ValueOfKey" -or- Array,
+//         requires : "all|any",
+//         ignoreKeys : Array() 
+//     }
+//     @notIn : { 
+//         list : Array(), 
+//         CollectionKey : "NameOfKeyInCollection", 
+//         ListKey : "IfListIsObjectSpecifyKey" 
+//     }
+
+__.model.Collection.set({
+    name : "MyCollection",
+    model : Array(
+        { Id : 0, Title : "A Title" }, 
+        { Id : 1, Title : "Another Object"}, 
+        { Id : 2, Title : "This is cool"}, 
+        { Id : 3, Title : "Another Test Object" } 
+    )
+});
+
+ComparedAgainst  = Array(0,2,3,4,5);
+
+__.model.Collection.search("MyCollection", { key : "Title", equals : "Another"}, { list : ComparedAgainst, CollectionKey : "Id" } );
+// @returns 1 records because the Id for 'Another Test Object' is in the ComparedAgainst array
+                </pre>
+            </div>
+<!-- 
+    // search 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    forEach 
+-->
+            <div class="code-chunk">
+                <header><b>forEach</b> a Collection</header>
+                <pre class="sh_javascript">
+// Loops through a Collection
+//     @CollectionName
+//     @Callback
+
+__.model.Collection.set({
+    name : "MyCollection"
+    model : Array(
+        { Id : 0, Title : "A Title" }, 
+        { Id : 1, Title : "Another Object"}, 
+        { Id : 2, Title : "This is cool"}, 
+        { Id : 3, Title : "Another Test Object" } 
+    )
+});
+
+__.model.collection.forEach("MyCollection", function(Item, Index) {
+    console.log(Item.Id);
+    console.log(Item.Title);
+});
+                </pre>
+            </div>
+<!-- 
+    // forEach 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    sortBy 
+-->
+            <div class="code-chunk">
+                <header><b>sortBy</b> a Collection</header>
+                <pre class="sh_javascript">
+// Sorts a Collection by specified key
+//     @CollectionName
+//     @Key
+
+__.model.Collection.set({
+    name : "MyCollection",
+    model : Array(
+        { Id : 0, Title : "A Title" }, 
+        { Id : 3, Title : "Another Test Object" },
+        { Id : 2, Title : "This is cool"},
+        { Id : 1, Title : "Another Object"} 
+    )
+});
+
+var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Id");
+// @returns
+//    { Id : 0, Title : "A Title" }
+//    { Id : 1, Title : "Another Object"}
+//    { Id : 2, Title : "This is cool"}
+//    { Id : 3, Title : "Another Test Object" }
+
+var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Title");
+// @returns
+//    { Id : 0, Title : "A Title" }
+//    { Id : 1, Title : "Another Object"}
+//    { Id : 3, Title : "Another Test Object" }
+//    { Id : 2, Title : "This is cool"}
+                </pre>
+            </div>
+<!-- 
+    // forEach 
+-->
+
+<!-- ************************************** -->
+
+<!-- 
+    isValid 
+-->
+            <div class="code-chunk">
+                <header><b>isValid</b> Collection comparison</header>
+                <pre class="sh_javascript">
+// Compares a set Collection against a prototyped version of the same object
+//     @CollectionName
+
+__.model.Collection.set({
+    name : "MyCollectionPrototype",
+    model : {
+        MyArray : { Type : Array() },
+        MyBoolean : Boolean(),
+        MyNull : { Type : String() },
+        MyNumber : { Type: Number() },
+        MyObject : { Type: Object() },
+        MyString : { Type: String() }
+    } 
+});
+
+
+__.model.Collection.set({
+    name : "MyCollection",
+    model : {
+        MyArray   : [1,2,3],
+        MyBoolean : true,
+        MyNull     : null,
+        MyNumber   : 123,
+        MyObject   : {
+            "a" : "b",
+            "c" : "d",
+            "e" : "f"
+        },
+        MyString : "Hello World"
+    }
+});
+
+var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
+// @returns true|false
+                </pre>
+            </div>
+<!-- 
+    // forEach 
+-->
+    </section>
+    <script type="text/javascript" src="__.js"></script>
+    <script type="text/javascript">
+
+        //
+        // __.model.Collection.set()
+        // as an Object
+        __.model.Collection.set({
+            name : 'MyCollectionObject',
+            model : {
+                Myarray   : [1,2,3],
+                MyBoolean : true,
+                MyNull     : null,
+                MyNumber   : 123,
+                MyObject   : {
+                    "a" : "b",
+                    "c" : "d",
+                    "e" : "f"
+                },
+                MyString : "Hello World"
+            }
+        });
+        //
+        // as an Array
+        __.model.Collection.set({
+            name : "MyCollectionArray",
+            model : ['apple', 'orange', 'banana', 'pepper']
+        });
+
+        //
+        // __.model.Collection.get()
+        var MyCollection = __.model.Collection.get('MyCollectionObject');
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('get() method');
+        console.log(MyCollection);
+
+        //
+        // __.model.Collection.insertInto()
+        //
+        // insertInto a MyCollectionArray
+        MyCollectionArray = __.model.Collection.insertInto(
+            "MyCollectionArray", 
+            "pear"
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('insetInto() method on an Array')
+        console.log(MyCollectionArray);
+        //
+        // insertInto a MyCollectionObject
+        MyCollectionObject = __.model.Collection.insertInto(
+            "MyCollectionObject", 
+            { key : "ThisNewKey" , value : "Is Awesome" }
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('insertInto() method on an Object')
+        console.log(MyCollectionObject);
+
+        //
+        // __.model.Collection.update()
+        // insertInto a MyCollectionObject
+        MyCollectionArray = __.model.Collection.update(
+            "MyCollectionArray", 
+            { index : 3 , equals : "green pepper" }
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('update() method on an Array')
+        console.log(MyCollectionArray);
+
+        //
+        // __.model.Collection.update()
+        // insertInto a MyCollectionArray
+        MyCollectionObject = __.model.Collection.update(
+            "MyCollectionObject", 
+            { key : "ThisNewKey" , equals : "Is Awesome" },
+            { "ThisNewKey" : "Has Totally Changed" }
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('update() method on an Object')
+        console.log(MyCollectionObject);
+
+        //
+        // __.model.Collection.deleteFrom()
+        // deleteFrom a MyCollectionArray
+        MyCollectionArray = __.model.Collection.deleteFrom("MyCollectionArray", "banana");
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('delete() method on an Array')
+        console.log(MyCollectionArray);
+
+        //
+        // __.model.Collection.deleteFrom()
+        // deleteFrom a MyCollectionObject
+        __.model.Collection.set({
+            name : "MyCollectionObject",
+            model : Array(
+                { Id : 0, Title : "A Title" }, 
+                { Id : 1, Title : "Another Object"}, 
+                { Id : 2, Title : "This is cool"}, 
+                { Id : 3, Title : "Another Test Object" } 
+            )
+        });
+
+        MyCollectionObject = __.model.Collection.deleteFrom(
+            "MyCollectionObject", 
+            { key : "Id" , equals : 2 }
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('delete() method on an Object')
+        console.log(MyCollectionObject);
+
+
+
+        //
+        // __.model.Collection.search()
+        // search() method without a NotIn list
+        __.model.Collection.set({
+            name : "MyCollection",
+            model : Array(
+                { Id : 0, Title : "A Title" }, 
+                { Id : 1, Title : "Another Object"}, 
+                { Id : 2, Title : "This is cool"}, 
+                { Id : 3, Title : "Another Test Object" } 
+            )
+        });
+
+        ComparedAgainst  = Array(0,2,3,4,5);
+        var MySearchedCollection = __.model.Collection.search(
+            "MyCollection", 
+            { key : "Title", equals : "Another"} 
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('search() method without a NotIn list');
+        console.log(MySearchedCollection);
+
+
+        //
+        // __.model.Collection.deleteFrom()
+        // search() method with a NotIn list
+        var MySearchedCollection = __.model.Collection.search(
+            "MyCollection", 
+            { key : "Title", equals : "Another"}, 
+            { list : ComparedAgainst, CollectionKey : "Id" } 
+        );
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('search() method with a NotIn list');
+        console.log(MySearchedCollection);
+
+
+        //
+        // __.model.Collection.forEach()
+        __.model.Collection.set({
+            name : "MyCollection",
+            model : Array(
+                { Id : 0, Title : "A Title" }, 
+                { Id : 1, Title : "Another Object"},
+                { Id : 2, Title : "This is cool"},
+                { Id : 3, Title : "Another Test Object" }
+            )
+        });
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('forEach() method');
+        __.model.Collection.forEach("MyCollection", function(Item, Index) {
+            console.log(Item.Id + ': ' + Item.Title);
+        }); 
+
+        //
+        // __.model.Collection.sortBy()
+        __.model.Collection.set({
+            name : "MyCollection",
+            model : Array(
+                { Id : 0, Title : "A Title" }, 
+                { Id : 3, Title : "Another Test Object" },
+                { Id : 2, Title : "This is cool"},
+                { Id : 1, Title : "Another Object"} 
+            )
+        });
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('sortBy() method (example: by Id)');
+        var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Id");
+        console.log(MyCollectionSorted);
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('sortBy() method (example: by Title');
+        var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Title");
+        console.log(MyCollectionSorted);
+
+
+
+        __.model.Collection.set({
+            name : "MyCollectionPrototype",
+            model : {
+                MyArray : { Type : Array() },
+                MyBoolean : { Type : Boolean() },
+                MyNull : { Type : String() },
+                MyNumber : { Type: Number() },
+                MyObject : {
+                    "a" : { Type : Object() },
+                    "c" : { Type : Object() },
+                    "e" : { Type : Array() }
+                },
+                MyString : { Type: String() }
+            } 
+        });
+
+
+        __.model.Collection.set({
+            name : "MyCollection",
+            model : {
+                MyArray : Array(1,2,3),
+                MyBoolean : true,
+                MyNull : "",
+                MyNumber : 123,
+                MyObject : {
+                    "a" : {},
+                    "c" : {},
+                    "e" : []
+                },
+                MyString : "String Text"
+            }
+        });
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('isValid() method');
+        var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
+
+        console.log(isMyCollectionValid);
+
+    </script>
+</body>
+</html>
