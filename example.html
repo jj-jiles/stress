@@ -73,6 +73,24 @@ var MyCollection = __.model.Collection.get("MyCollection.MyObject");
 <!-- ************************************** -->
 
 <!-- 
+    SIZE 
+-->
+            <div class="code-chunk">
+                <header><b>Size</b> of a Collection</header>
+                <pre class="sh_javascript">
+// Returns the size (length) of a Collection
+//     @CollectionName
+var MyCollectionSize = __.model.Collection.size("MyCollection");
+                </pre>
+            </div>
+<!-- 
+    // GET 
+-->
+
+
+<!-- ************************************** -->
+
+<!-- 
     insertInto 
 -->
             <div class="code-chunk">
@@ -276,7 +294,7 @@ __.model.collection.forEach("MyCollection", function(Item, Index) {
                 <pre class="sh_javascript">
 // Sorts a Collection by specified key
 //     @CollectionName
-//     @Key
+//     @KeysAndDirection
 
 __.model.Collection.set({
     name : "MyCollection",
@@ -288,14 +306,14 @@ __.model.Collection.set({
     )
 });
 
-var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Id");
+var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", { "Id" : "asc" });
 // @returns
 //    { Id : 0, Title : "A Title" }
 //    { Id : 1, Title : "Another Object"}
 //    { Id : 2, Title : "This is cool"}
 //    { Id : 3, Title : "Another Test Object" }
 
-var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Title");
+var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", { "Title" : "desc" });
 // @returns
 //    { Id : 0, Title : "A Title" }
 //    { Id : 1, Title : "Another Object"}
@@ -391,6 +409,14 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
         console.log('________________________');
         console.log('get() method');
         console.log(MyCollection);
+
+        //
+        // __.model.Collection.size()
+        console.log(' ');
+        console.log('________________________');
+        console.log('size() method');
+        console.log('MyCollectionObject Size: ' + __.model.Collection.size('MyCollectionObject'));
+        console.log('MyCollectionArray Size: ' + __.model.Collection.size('MyCollectionArray'));
 
         //
         // __.model.Collection.insertInto()

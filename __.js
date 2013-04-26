@@ -21,6 +21,7 @@ if (!Array.indexOf) {
 ********************************************** */
 
 
+
 /* **************************************************
 *
 * New Framework
@@ -165,11 +166,14 @@ var __ = {
 
 					var arrColl = Collection.split('.');
 					var AllowEmpty = (typeof AllowEmpty !== 'undefined')?AllowEmpty:false;
+
 					if ( arrColl.length > 1 ) {
 						arr = '';
 						for ( var prop in arrColl ) {
-							arr += "['" + arrColl[prop] + "']";
-						}				
+							//if ( typeof arrColl[prop] !== 'function' ) {
+								arr += "['" + arrColl[prop] + "']";
+							//}
+						}
 						collection = eval('this' + arr );
 					} else {
 						collection = this[Collection];
@@ -210,6 +214,31 @@ var __ = {
 
 
 
+
+			/**
+				Returns the size of the Collection object/array
+				@return integer
+			*/
+			size : function(Collection) {
+				collection = this.returnCollection(Collection, true);
+				if ( collection instanceof Array ) {
+					return collection.length;
+				} else if ( collection instanceof Object ) {
+					var size = 0, key;
+					for (key in collection) {
+						if (collection.hasOwnProperty(key)) size++;
+					}
+					return size;
+				}
+			},
+			/**
+				End
+			*/
+
+
+
+
+
 			
 			/**
 				adds a data model to the schema
@@ -227,7 +256,7 @@ var __ = {
 					console.log('The model is not an object or array');
 					var trace = printStackTrace();
 					//Output however you want!
-					console.log(trace.join('\n'));					
+					console.log(trace.join('\n'));
 				}
 
 			},
@@ -403,34 +432,96 @@ var __ = {
 
 			/**
 				Used to sort a Collection by a specific key
+
+				most of this solution came about via
+				http://stackoverflow.com/questions/5223/length-of-javascript-object-ie-associative-array
+
+				I've added ability for it to handle either numeric or string values, plus null/blank values
 			
 				Use:
-				__.model.Collection.sortBy('CollectionName', 'KeyName', false, function(a){return a.toUpperCase()});
+				__.model.Collection.sortBy('CollectionName', { 'KeyName' : 'asc|desc' });
 			*/
-			sortBy : function(Collection, key, reverse, primer) {
+			sortBy : function(Collection, keys, reverse, primer) {
 				var collection = this.returnCollection(Collection);
 
-				var TempArray = Array();
-				var TempObject = {};
-				var SortedCollection = Array();
 				if ( collection instanceof Array ) {
-					for ( i=0; i<collection.length; i++ ) {
-						for ( var prop in collection[i] ) {
-							if (prop == key ) {
-								TempArray.push( collection[i][prop] );
-								TempObject[ collection[i][prop] ] = collection[i];
+					keys = keys || {};
+				  
+					// via
+					// http://stackoverflow.com/questions/5223/length-of-javascript-object-ie-associative-array
+					var obLen = function(obj) {
+						var size = 0, key;
+						for (key in obj) {
+							if (obj.hasOwnProperty(key))
+								size++;
+						}
+						return size;
+					};
+
+					// avoiding using Object.keys because i guess did it have IE8 issues?
+					// else var obIx = fucntion(obj, ix){ return Object.keys(obj)[ix]; } or
+					// whatever
+					var obIx = function(obj, ix) {
+						var size = 0, key;
+						for (key in obj) {
+							if (obj.hasOwnProperty(key)) {
+								if (size == ix)
+									return key;
+								size++;
 							}
 						}
+						return false;
+					};
+
+					var keySort = function(a, b, d) {
+						d = d !== null ? d : 1;
+
+						if (a === b)
+							return 0;
+
+						if((a === '') && (b === '')) return 0; //they're both null and equal
+						else if((a === '') && (b != '')) return -1; //move a downwards
+						else if((a != '') && (b === '')) return 1; //move b downwards
+						else {
+							//
+							// value is number/float
+							if (!isNaN(parseFloat(a)) && isFinite(a) ) {
+								return d===1?a-b:b-a;
+							//
+							// value is string
+							} else {
+								return a > b ? 1 * d : a < b ? -1 * d : 0;
+							}
+						}
+					};
+
+					var KL = obLen(keys);
+
+					if (!KL) return collection.sort(keySort);
+
+					for ( var k in keys) {
+						// asc unless desc or skip
+						keys[k] = 
+							keys[k] == 'desc' || keys[k] == -1  ? -1 
+							: (keys[k] == 'skip' || keys[k] === 0 ? 0 
+							: 1);
 					}
 
-					TempArray.sort();
+					collection.sort(function(a, b) {
+						var sorted = 0, ix = 0;
 
-					for ( i=0; i<TempArray.length; i++ ) {
-						SortedCollection.push(TempObject[TempArray[i]]);
-					}
+						while (sorted === 0 && ix < KL) {
+							var k = obIx(keys, ix);
+							if (k) {
+								var dir = keys[k];
+								sorted = keySort(a[k], b[k], dir);
+								ix++;
+							}
+						}
+						return sorted;
+					});
+					return collection;
 				}
-
-				return SortedCollection;
 			},
 			/**
 				end
@@ -657,11 +748,11 @@ var __ = {
 			*/
 			forEach : function(collection, callback, where, offset, rowCount) {
 
-					if ( typeof where !== 'undefined' ) {
-						collection = this.get(collection, where);
-					} else {
-						collection = this.returnCollection(collection);
-					}
+				if ( typeof where !== 'undefined' ) {
+					collection = this.get(collection, where);
+				} else {
+					collection = this.returnCollection(collection);
+				}
 
 				if ( typeof collection !== 'object' ) {
 					console.log('The collection you requested is not an object');
@@ -946,35 +1037,6 @@ var __ = {
 	* End
 	*
 	********************************************** */
-
-
-
-
-
-
-
-	
-	/* **********************************************
-	*
-	*
-	****** */
-/*	dom : {
-		extend : function(source, methods) {
-			if ( typeof  this[source] == 'undefined' ) {
-				this[source] = methods;
-			} else {
-				for ( var prop in methods ) {
-					this[source][prop] = methods[prop];
-				}	
-			}
-		}		
-	}*/
-	/* ******
-	*
-	* End
-	*
-	********************************************** */
-
 
 
 
