@@ -185,7 +185,7 @@ var __ = {
 						console.log('The collection you requested is not an object');
 						var trace = printStackTrace();
 						//Output however you want!
-						console.log(trace.join('\n\n'));
+						console.log(trace.join('\n'));
 						return;
 
 					} else {
@@ -560,7 +560,7 @@ var __ = {
 						return ( typeof collection[index] !== 'undefined' );
 					} else {
 						needle = (where.hasOwnProperty('key')) ? where['key'] : undefined;
-						val    = where['value'];
+						val    = where['equals'];
 
 						if ( needle !== undefined ) {
 							return ( collection[needle].indexOf(val) > -1 );
@@ -671,7 +671,7 @@ var __ = {
 							// Loop through each property of the Item
 							for ( var prop in Item ) {
 								// check to see if we need to ignore this property
-								ignoreProp = ( typeof IgnoreKeys !== null && IgnoreKeys.indexOf(prop) > -1) ? true : false;
+								ignoreProp = ( IgnoreKeys instanceof Array && IgnoreKeys.indexOf(prop) > -1) ? true : false;
 
 								if ( Item[prop] instanceof Object ) {
 									for ( var ii in Item[prop] ) {
@@ -1161,7 +1161,7 @@ var __ = {
 	* the character
 	*
 	* var Str = 'the brown fox jumps over the lazy dog';
-	* foundChar = __.findPreviousOccurence(Str, 'x', 0); // should return 11
+	* foundChar = __.findNextOccurence(Str, 'x', 0); // should return 11
 	*
 	*********
 	*
@@ -1170,7 +1170,7 @@ var __ = {
 	* and the character (needle key) that was found first.
 	*
 	* var Str = 'the brown fox jumps over the lazy dog';
-	* foundChar = __.findPreviousOccurence(Str, Array('x','u','v'), 0); // should return Array(20, 'v');
+	* foundChar = __.findNextOccurence(Str, Array('x','u','v'), 0); // should return Array(20, 'v');
 	*
 	****** */
 	findNextOccurence : function(haystack, needle, startPos) {
@@ -1194,6 +1194,14 @@ var __ = {
 	* End
 	*
 	********************************************** */
+
+
+
+	isNumeric : function(val) {
+		return (!isNaN(parseFloat(val)) && isFinite(val));
+	}
+
+
 };
 
 
