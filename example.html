@@ -517,8 +517,6 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
                 { Id : 3, Title : "Another Test Object" } 
             )
         });
-
-        ComparedAgainst  = Array(0,2,3,4,5);
         var MySearchedCollection = __.model.Collection.search(
             "MyCollection", 
             { key : "Title", equals : "Another"} 
@@ -531,8 +529,9 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
 
 
         //
-        // __.model.Collection.deleteFrom()
+        // __.model.Collection.search()
         // search() method with a NotIn list
+        ComparedAgainst  = Array(0,2,3,4,5);
         var MySearchedCollection = __.model.Collection.search(
             "MyCollection", 
             { key : "Title", equals : "Another"}, 
