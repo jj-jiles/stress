@@ -606,57 +606,87 @@ var __ = {
 				ComparedAgainst = Array(0,2,3,4,5);
 				CollectionObject = Array( { Id: 0, Title: 'A Title' }, { Id : 1, Title : 'Another Object', Id : 2, Title : 'This is cool', { Id : 3, Title : 'Another Test Object' } }
 
-				__.model.Collection.search('CollectionObject', { key : 'Title', equals : 'Another'}, { list : ComparedAgainst, CollectionKey : 'Id' } );
+				__.model.Collection.search({
+					Collection : 'CollectionObject',
+					Where      : { key : 'Title', equals : 'Another'}, 
+					NotIn      : { list : ComparedAgainst, CollectionKey : 'Id' } 
+				});
 				@returns 1 records because the Id for 'Another Test Object' is in the ComparedAgainst array
 			 
 			*/
-			search : function(Collection, where, notIn) {
-				var ItemsFound       = Array();
-				var KeywordsList     = null;
-				var KeywordsRequired = 'any';
-				var IgnoreKeys       = null;
+			search : function(objOptions) { //Collection, where, notIn, options) {
+				var ItemsFound       = Array()
+					, KeywordsList     = null
+					, KeywordsNeeded   = 0
+					, KeywordsRequired = 'any'
+					, IgnoreKeys       = null
+					, defaults         = { RemoveStopWords : true };
 
-				if ( typeof notIn === 'object' ) {
-					var notInList = ( notIn.hasOwnProperty('list') ) ? notIn.list : undefined;
-					var CollectionKey = ( notIn.hasOwnProperty('CollectionKey') ) ? notIn.CollectionKey : undefined;
-					var ListKey = ( notIn.hasOwnProperty('ListKey') ) ? notIn.ListKey : undefined;
+				var options = __.setDefaults(objOptions, defaults);
+				if ( typeof options.NotIn === 'object' ) {
+					var NotInList = ( options.NotIn.hasOwnProperty('list') ) ? options.NotIn.list : undefined
+						, CollectionKey = ( options.NotIn.hasOwnProperty('CollectionKey') ) ? options.NotIn.CollectionKey : undefined
+						, ListKey = ( options.NotIn.hasOwnProperty('ListKey') ) ? options.NotIn.ListKey : undefined;
 				}
 				
-				if ( typeof where === 'object' ) {
-					var needle = where['key'];
+				if ( typeof options.Where === 'object' ) {
+					var needle = options.Where['key'];
 
-					if ( where['equals'] instanceof Array ) {
-						KeywordsList = where['equals'];
+					if ( options.Where['equals'] instanceof Array ) {
+						KeywordsList = options.Where['equals'];
+						KeywordsNeeded = KeywordsList.length;
 
 					} else {
-						//val = String(where['equals']).toLowerCase();
-						if ( where.hasOwnProperty('key') ) {
-							val = String(where['equals']).toLowerCase();
+						//val = String(options.Where['equals']).toLowerCase();
+						if ( options.Where.hasOwnProperty('key') ) {
+							val = String(options.Where['equals']).toLowerCase();
 						} else {
 							KeywordsList = Array();
-							KeywordsList.push(where['equals']);
+							KeywordsList.push(options.Where['equals']);
 						}
+						KeywordsNeeded++;
 					}
 
-					if ( typeof where['requires'] !== 'undefined' ) {
-						KeywordsRequired = where['requires'];
+					if ( typeof options.Where['requires'] !== 'undefined' ) {
+						KeywordsRequired = options.Where['requires'];
 					}
 
-					if ( where['ignoreKeys'] instanceof Array) {
-						IgnoreKeys = where['ignoreKeys'];
+					if ( options.Where['ignoreKeys'] instanceof Array) {
+						IgnoreKeys = options.Where['ignoreKeys'];
 					}
 
 				}
+				if ( options.Evals instanceof Array ) {
+					for ( var prop in options.Evals ) {
+						KeywordsNeeded++;
+					}
+				}
 
-				this.forEach(Collection, function(Item, Index) {					
-					var strNeedle = String(Item[needle]).toLowerCase();
-					var TotalKeywordsFound = 0;
-					var KeywordsListReference = Array();
+
+				this.forEach(options.Collection, function(Item, Index) {					
+					var strNeedle = String(Item[needle]).toLowerCase()
+						, TotalKeywordsFound = 0
+						, KeywordsListReference = Array();
 
 					//
 					// Equals is an array list of keywords
-					if ( KeywordsList !== null ) {
+					if ( KeywordsList === null ) {
+						if ( strNeedle.indexOf(val) > -1 ) {
+							if ( __.model.Collection.is_array(NotInList) && NotInList.length > 0 && ( NotInList.indexOf(Item[CollectionKey]) < 0 ) ) {
+								TotalKeywordsFound++;
+								//ItemsFound.push(Item);
+							} else if ( (__.model.Collection.is_array(NotInList) && NotInList.length <= 0) ) {
+								TotalKeywordsFound++;
+								//ItemsFound.push(Item);
+							} else if ( NotInList === 'undefined' || !__.model.Collection.is_array(NotInList) ) {
+								TotalKeywordsFound++;
+								//ItemsFound.push(Item);
+							}
+						}
+					} else {
 
+						//
+						// Keywords Array passed
 						for ( i=0; i<KeywordsList.length; i++ ) {
 							KeywordsListReference[KeywordsList[i].toLowerCase()] = 0;
 						}
@@ -667,63 +697,76 @@ var __ = {
 
 							keyword = KeywordsList[i].toLowerCase();
 
-							//
-							// Loop through each property of the Item
-							for ( var prop in Item ) {
-								// check to see if we need to ignore this property
-								ignoreProp = ( IgnoreKeys instanceof Array && IgnoreKeys.indexOf(prop) > -1) ? true : false;
+							if ( options.RemoveStopWords ) {
+								keyword = __.removeStopWords(keyword);
+							}
+							
+							if ( keyword.length > 0 ) {
+								//
+								// Loop through each property of the Item
+								for ( var prop in Item ) {
+									// check to see if we need to ignore this property
+									ignoreProp = ( IgnoreKeys instanceof Array && IgnoreKeys.indexOf(prop) > -1) ? true : false;
 
-								if ( Item[prop] instanceof Object ) {
-									for ( var ii in Item[prop] ) {
-										propVal = Item[prop][ii].toLowerCase();
+									if ( Item[prop] instanceof Object ) {
+										for ( var ii in Item[prop] ) {
+											propVal = Item[prop][ii].toLowerCase();
+											//
+											// if we don't need to ignore this property, see if the keyword is there
+											if (!ignoreProp && propVal != "" && propVal.indexOf(keyword) > -1 ) {
+												KeywordsListReference[keyword] = 1;
+											}
+
+										}
+									} else {
+										propVal = Item[prop].toLowerCase();
 										//
 										// if we don't need to ignore this property, see if the keyword is there
 										if (!ignoreProp && propVal != "" && propVal.indexOf(keyword) > -1 ) {
 											KeywordsListReference[keyword] = 1;
 										}
+									}
 
-									}
-								} else {
-									propVal = Item[prop].toLowerCase();
-									//
-									// if we don't need to ignore this property, see if the keyword is there
-									if (!ignoreProp && propVal != "" && propVal.indexOf(keyword) > -1 ) {
-										KeywordsListReference[keyword] = 1;
-									}
 								}
+							}
 
+							for ( var prop in KeywordsListReference) {
+								TotalKeywordsFound = TotalKeywordsFound+Number(KeywordsListReference[prop]);
 							}
 						}
 
-						for ( var prop in KeywordsListReference) {
-							TotalKeywordsFound = TotalKeywordsFound+Number(KeywordsListReference[prop]);
-						}
-
+						// End: Keywords Array
 						//
-						// search requires all keywords to be found in the Item
-						if ( KeywordsRequired == 'all' && TotalKeywordsFound >= (KeywordsList.length) ) {
-							ItemsFound.push(Item);
 
-						//
-						// search can have any of the keywords in the Item
-						} else if ( KeywordsRequired == 'any' && TotalKeywordsFound > 0 ) {
-							ItemsFound.push(Item);
-						}
+					}
 
+					//
+					// Eval statements have been passed as well
+					if ( options.Evals instanceof Array ) {
 
-					} else {
-
-						if ( strNeedle.indexOf(val) > -1 ) {
-							if ( __.model.Collection.is_array(notInList) && notInList.length > 0 && ( notInList.indexOf(Item[CollectionKey]) < 0 ) ) {
-								ItemsFound.push(Item);
-							} else if ( (__.model.Collection.is_array(notInList) && notInList.length <= 0) ) {
-								ItemsFound.push(Item);
-							} else if ( notInList === 'undefined' || !__.model.Collection.is_array(notInList) ) {
-								ItemsFound.push(Item);
+						for ( var prop in options.Evals ) {
+							var _Eval = options.Evals[prop];
+							var Key   = _Eval.Key;
+							equation = '(Item["' + _Eval.Key + '"]' + _Eval.Operator + _Eval.Value + ')';
+							if ( eval(equation) ) {
+								TotalKeywordsFound++;
 							}
 						}
 					}
+					// End: Evals
+					//
 
+
+					//
+					// search requires all keywords to be found in the Item
+					if ( KeywordsRequired == 'all' && TotalKeywordsFound >= (KeywordsNeeded) ) {
+						ItemsFound.push(Item);
+
+					//
+					// search can have any of the keywords in the Item
+					} else if ( KeywordsRequired == 'any' && TotalKeywordsFound > 0 ) {
+						ItemsFound.push(Item);
+					}
 				});
 
 				return ItemsFound;
@@ -1096,6 +1139,93 @@ var __ = {
 
 
 
+	/* **********************************************
+	*
+	* Method: __.include
+	* For: including external model/view/controller libraries
+	* 
+	* Use:
+	*    __.include({
+	*		model        : 'ModelName'    // file name 'model.ModelName.js'
+	*		, controller : 'ControllName' // file name: 'controller.ControllerName.js'
+	*		, view       : 'ViewName'     // file name: 'view.ViewName.js'
+	*	})
+	*
+	*
+	* To include multiple libraries, use Arrays
+	*    __.include({
+	*		model        : ['ModelName', 'OtherModel']         // file name 'model.ModelName.js'
+	*		, controller : ['ControllName', 'OtherController'] // file name: 'controller.ControllerName.js'
+	*		, view       : ['ViewName', 'OtherView']           // file name: 'view.ViewName.js'
+	*	})
+	*
+	*
+	* <script src='/assets/js/framework/models/model.ModeName.js' type='text/javascript'></script>
+	* <script src='/assets/js/framework/controllers/controller.ControllerName.js' type='text/javascript'></script>
+	* <script src='/assets/js/framework/views/view.ViewName.js' type='text/javascript'></script>
+	*
+	*
+	****** */
+	include : function(objOptions, callback) {
+		var options  = this.setDefaults(objOptions);
+		var oHead    = document.getElementsByTagName('BODY').item(0);
+
+		var count = 0;
+		for ( var prop in options ) {
+			if ( prop != 'hasCallback' && prop != 'callback' )
+				count++;
+		}
+		
+		var step = 0;
+		for ( var prop in options ) {
+			step++;
+			if (options[prop] instanceof Array ) {
+				for ( var i=0; i<options[prop].length; i++) {
+					var oScript  = document.createElement("script");
+					oScript.type = "text/javascript";
+					oScript.src  ="/assets/js/framework/" + prop + "s/" + prop + "." + options[prop][i] + ".js";
+					oHead.appendChild( oScript);
+				}
+			} else {
+				if ( prop != 'hasCallback' && prop != 'callback' ) {
+					var oScript  = document.createElement("script");
+					oScript.type = "text/javascript";
+					if ( step >= count ) {
+						if (navigator.userAgent.indexOf('MSIE') > -1) {
+							oScript.onload = oScript.onreadystatechange = function () {
+								if (this.readyState == "loaded" || this.readyState == "complete") {
+									if (loaded) { callback(); }
+								}
+								oScript.onload = oScript.onreadystatechange = null;
+							};
+						} else {
+							oScript.onload = callback;
+						}
+					}
+
+					oScript.src  ="/assets/js/framework/" + prop + "s/" + prop + "." + options[prop] + ".js";
+					oHead.appendChild( oScript);
+				}
+			}
+		}
+
+		// if ( options.hasCallback ) {
+		// 	options.callback();
+		// }
+
+	},
+	/* ******
+	*
+	* End
+	*
+	********************************************** */
+
+
+
+
+
+
+
 	
 	/* **********************************************
 	*
@@ -1199,6 +1329,489 @@ var __ = {
 
 	isNumeric : function(val) {
 		return (!isNaN(parseFloat(val)) && isFinite(val));
+	},
+
+
+
+
+
+	/*
+	 * Script from http://geeklad.com/remove-stop-words-in-javascript
+	 *
+	 * String method to remove stop words
+	 * Written by GeekLad http://geeklad.com
+	 * Stop words obtained from http://www.lextek.com/manuals/onix/stopwords1.html
+	 *   Usage: string_variable.removeStopWords();
+	 *   Output: The original String with stop words removed
+	 */
+	removeStopWords : function(FullString) {
+		var x;
+		var y;
+		var word;
+		var stop_word;
+		var regex_str;
+		var regex;
+		var cleansed_string = FullString.valueOf();
+		var stop_words = new Array(
+			'a',
+			'about',
+			'above',
+			'across',
+			'after',
+			'again',
+			'against',
+			'all',
+			'almost',
+			'alone',
+			'along',
+			'already',
+			'also',
+			'although',
+			'always',
+			'among',
+			'an',
+			'and',
+			'another',
+			'any',
+			'anybody',
+			'anyone',
+			'anything',
+			'anywhere',
+			'are',
+			'area',
+			'areas',
+			'around',
+			'as',
+			'ask',
+			'asked',
+			'asking',
+			'asks',
+			'at',
+			'away',
+			'b',
+			'back',
+			'backed',
+			'backing',
+			'backs',
+			'be',
+			'became',
+			'because',
+			'become',
+			'becomes',
+			'been',
+			'before',
+			'began',
+			'behind',
+			'being',
+			'beings',
+			'best',
+			'better',
+			'between',
+			'big',
+			'both',
+			'but',
+			'by',
+			'c',
+			'came',
+			'can',
+			'cannot',
+			'case',
+			'cases',
+			'certain',
+			'certainly',
+			'clear',
+			'clearly',
+			'come',
+			'could',
+			'd',
+			'did',
+			'differ',
+			'different',
+			'differently',
+			'do',
+			'does',
+			'done',
+			'down',
+			'down',
+			'downed',
+			'downing',
+			'downs',
+			'during',
+			'e',
+			'each',
+			'early',
+			'either',
+			'end',
+			'ended',
+			'ending',
+			'ends',
+			'enough',
+			'even',
+			'evenly',
+			'ever',
+			'every',
+			'everybody',
+			'everyone',
+			'everything',
+			'everywhere',
+			'f',
+			'face',
+			'faces',
+			'fact',
+			'facts',
+			'far',
+			'felt',
+			'few',
+			'find',
+			'finds',
+			'first',
+			'for',
+			'four',
+			'from',
+			'full',
+			'fully',
+			'further',
+			'furthered',
+			'furthering',
+			'furthers',
+			'g',
+			'gave',
+			'general',
+			'generally',
+			'get',
+			'gets',
+			'give',
+			'given',
+			'gives',
+			'go',
+			'going',
+			'good',
+			'goods',
+			'got',
+			'great',
+			'greater',
+			'greatest',
+			'group',
+			'grouped',
+			'grouping',
+			'groups',
+			'h',
+			'had',
+			'has',
+			'have',
+			'having',
+			'he',
+			'her',
+			'here',
+			'herself',
+			'high',
+			'high',
+			'high',
+			'higher',
+			'highest',
+			'him',
+			'himself',
+			'his',
+			'how',
+			'however',
+			'i',
+			'if',
+			'important',
+			'in',
+			'interest',
+			'interested',
+			'interesting',
+			'interests',
+			'into',
+			'is',
+			'it',
+			'its',
+			'itself',
+			'j',
+			'just',
+			'k',
+			'keep',
+			'keeps',
+			'kind',
+			'knew',
+			'know',
+			'known',
+			'knows',
+			'l',
+			'large',
+			'largely',
+			'last',
+			'later',
+			'latest',
+			'least',
+			'less',
+			'let',
+			'lets',
+			'like',
+			'likely',
+			'long',
+			'longer',
+			'longest',
+			'm',
+			'made',
+			'make',
+			'making',
+			'man',
+			'many',
+			'may',
+			'me',
+			'member',
+			'members',
+			'men',
+			'might',
+			'more',
+			'most',
+			'mostly',
+			'mr',
+			'mrs',
+			'much',
+			'must',
+			'my',
+			'myself',
+			'n',
+			'necessary',
+			'need',
+			'needed',
+			'needing',
+			'needs',
+			'never',
+			'new',
+			'new',
+			'newer',
+			'newest',
+			'next',
+			'no',
+			'nobody',
+			'non',
+			'noone',
+			'not',
+			'nothing',
+			'now',
+			'nowhere',
+			'number',
+			'numbers',
+			'o',
+			'of',
+			'off',
+			'often',
+			'old',
+			'older',
+			'oldest',
+			'on',
+			'once',
+			'one',
+			'only',
+			'open',
+			'opened',
+			'opening',
+			'opens',
+			'or',
+			'order',
+			'ordered',
+			'ordering',
+			'orders',
+			'other',
+			'others',
+			'our',
+			'out',
+			'over',
+			'p',
+			'part',
+			'parted',
+			'parting',
+			'parts',
+			'per',
+			'perhaps',
+			'place',
+			'places',
+			'point',
+			'pointed',
+			'pointing',
+			'points',
+			'possible',
+			'present',
+			'presented',
+			'presenting',
+			'presents',
+			'problem',
+			'problems',
+			'put',
+			'puts',
+			'q',
+			'quite',
+			'r',
+			'rather',
+			'really',
+			'right',
+			'right',
+			'room',
+			'rooms',
+			's',
+			'said',
+			'same',
+			'saw',
+			'say',
+			'says',
+			'second',
+			'seconds',
+			'see',
+			'seem',
+			'seemed',
+			'seeming',
+			'seems',
+			'sees',
+			'several',
+			'shall',
+			'she',
+			'should',
+			'show',
+			'showed',
+			'showing',
+			'shows',
+			'side',
+			'sides',
+			'since',
+			'small',
+			'smaller',
+			'smallest',
+			'so',
+			'some',
+			'somebody',
+			'someone',
+			'something',
+			'somewhere',
+			'state',
+			'states',
+			'still',
+			'still',
+			'such',
+			'sure',
+			't',
+			'take',
+			'taken',
+			'than',
+			'that',
+			'the',
+			'their',
+			'them',
+			'then',
+			'there',
+			'therefore',
+			'these',
+			'they',
+			'thing',
+			'things',
+			'think',
+			'thinks',
+			'this',
+			'those',
+			'though',
+			'thought',
+			'thoughts',
+			'three',
+			'through',
+			'thus',
+			'to',
+			'today',
+			'together',
+			'too',
+			'took',
+			'toward',
+			'turn',
+			'turned',
+			'turning',
+			'turns',
+			'two',
+			'u',
+			'under',
+			'until',
+			'up',
+			'upon',
+			'us',
+			'use',
+			'used',
+			'uses',
+			'v',
+			'very',
+			'w',
+			'want',
+			'wanted',
+			'wanting',
+			'wants',
+			'was',
+			'way',
+			'ways',
+			'we',
+			'well',
+			'wells',
+			'went',
+			'were',
+			'what',
+			'when',
+			'where',
+			'whether',
+			'which',
+			'while',
+			'who',
+			'whole',
+			'whose',
+			'why',
+			'will',
+			'with',
+			'within',
+			'without',
+			'work',
+			'worked',
+			'working',
+			'works',
+			'would',
+			'x',
+			'y',
+			'year',
+			'years',
+			'yet',
+			'you',
+			'young',
+			'younger',
+			'youngest',
+			'your',
+			'yours',
+			'z'
+		)
+
+		// Split out all the individual words in the phrase
+		words = cleansed_string.match(/[^\s]+|\s+[^\s+]$/g);
+
+		// Review all the words
+		for(x=0; x < words.length; x++) {
+			// For each word, check all the stop words
+			for(y=0; y < stop_words.length; y++) {
+				// Get the current word
+				word = words[x].replace(/\s+|[^a-z]+/ig, "");	// Trim the word and remove non-alpha
+
+				// Get the stop word
+				stop_word = stop_words[y];
+
+				// If the word matches the stop word, remove it from the keywords
+				if(word.toLowerCase() == stop_word) {
+					// Build the regex
+					regex_str = "^\\s*"+stop_word+"\\s*$";		// Only word
+					regex_str += "|^\\s*"+stop_word+"\\s+";		// First word
+					regex_str += "|\\s+"+stop_word+"\\s*$";		// Last word
+					regex_str += "|\\s+"+stop_word+"\\s+";		// Word somewhere in the middle
+					regex = new RegExp(regex_str, "ig");
+
+					// Remove the word from the keywords
+					cleansed_string = cleansed_string.replace(regex, " ");
+				}
+			}
+		}
+		return cleansed_string.replace(/^\s+|\s+$/g, "");
 	}
 
 

@@ -19,6 +19,8 @@
             <h1>Documentation of the Stress Framework</h1>
         </header>
         <section>
+            <p><a href="https://github.com/jj-jiles/stress">View on GitHub</a></p>
+        <section>
             <h2>Collections</h2>
             <p>The core of the the Stress framework is Collections. Collections allow the view to work with data models and manipulate them when needed.</p>
         </section>
@@ -219,18 +221,20 @@ __.model.Collection.deleteFrom("MyCollectionArray", "orange");
                 <pre class="sh_javascript">
 // Searches a collection for a given value
 // Can compare against another object if one is specified
-//     @Collection : "CollectionName"
-//     @where : { 
-//         key : "NameofCollectionKey", 
-//         equals : "ValueOfKey" -or- Array,
-//         requires : "all|any",
-//         ignoreKeys : Array() 
-//     }
-//     @notIn : { 
-//         list : Array(), 
-//         CollectionKey : "NameOfKeyInCollection", 
-//         ListKey : "IfListIsObjectSpecifyKey" 
-//     }
+//     {
+//          @Collection : "CollectionName"
+//          @where : { 
+//              key : "NameofCollectionKey", 
+//              equals : "ValueOfKey" -or- Array,
+//              requires : "all|any",
+//              ignoreKeys : Array() 
+//          }
+//          @notIn : { 
+//              list : Array(), 
+//              CollectionKey : "NameOfKeyInCollection", 
+//              ListKey : "IfListIsObjectSpecifyKey" 
+//          }
+//      }
 
 __.model.Collection.set({
     name : "MyCollection",
@@ -244,8 +248,25 @@ __.model.Collection.set({
 
 ComparedAgainst  = Array(0,2,3,4,5);
 
-__.model.Collection.search("MyCollection", { key : "Title", equals : "Another"}, { list : ComparedAgainst, CollectionKey : "Id" } );
+__.model.Collection.search({
+    Collection : "MyCollection", 
+    Where      : { key : "Title", equals : "Another"}, 
+    NotIn      : { list : ComparedAgainst, CollectionKey : "Id" } 
+    RemoveStopWords : true|false
+});
 // @returns 1 records because the Id for 'Another Test Object' is in the ComparedAgainst array
+
+
+//
+// Evals property can be used to when you want to check for <, <=, =>, >, ==
+//
+__.model.Collection.search({
+    Collection : "MyCollection", 
+    Evals      : Array(
+        { Key : 'Id', Operator : '>=', Value : 2 }
+    )
+);
+// @returns 2 records Array({Id : 2, Title : 'This is cool' }, { Id : 3, Title : 'Another Test Object' });
                 </pre>
             </div>
 <!-- 
@@ -517,14 +538,15 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
                 { Id : 3, Title : "Another Test Object" } 
             )
         });
-        var MySearchedCollection = __.model.Collection.search(
-            "MyCollection", 
-            { key : "Title", equals : "Another"} 
-        );
+        var MySearchedCollection = __.model.Collection.search({
+            Collection : 'MyCollection',
+            Where      : { key : "Title", equals : "Another"},
+            RemoveStopWords : false
+        });
 
         console.log(' ');
         console.log('________________________');
-        console.log('search() method without a NotIn list');
+        console.log('search() method');
         console.log(MySearchedCollection);
 
 
@@ -532,15 +554,31 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
         // __.model.Collection.search()
         // search() method with a NotIn list
         ComparedAgainst  = Array(0,2,3,4,5);
-        var MySearchedCollection = __.model.Collection.search(
-            "MyCollection", 
-            { key : "Title", equals : "Another"}, 
-            { list : ComparedAgainst, CollectionKey : "Id" } 
-        );
+        var MySearchedCollection = __.model.Collection.search({
+            Collection : 'MyCollection',
+            Where      : { key : "Title", equals : "Another"},
+            NotIn      : { list : ComparedAgainst, CollectionKey : "Id" },
+            RemoveStopWords : false
+        });
 
         console.log(' ');
         console.log('________________________');
         console.log('search() method with a NotIn list');
+        console.log(MySearchedCollection);
+
+        //
+        // __.model.Collection.search()
+        // search() method with Evals property
+        Evals = Array();
+        Evals.push({ Key : 'Id', Operator : '>=', Value : 2 })
+        var MySearchedCollection = __.model.Collection.search({
+            Collection : "MyCollection", 
+            Evals      : Array({ Key : 'Id', Operator : '>=', Value : 2 })
+        });
+
+        console.log(' ');
+        console.log('________________________');
+        console.log('search() method with Evals property');
         console.log(MySearchedCollection);
 
 
