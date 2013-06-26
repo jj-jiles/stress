@@ -11,7 +11,7 @@
     <script type="text/javascript" src="NotPartOfFramework/JS/sh_main.min.js"></script>
     <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript.min.js"></script>
     <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript_dom.min.js"></script>
-    
+    <script type="text/javascript" src="__.js"></script>
 </head>
 <body onload="sh_highlightDocument();">
     <section id="wrapper">
@@ -21,10 +21,132 @@
         <section>
             <ul>
                 <li><a href="https://github.com/jj-jiles/stress">View on GitHub</a></li>
+                <li><a href="#core-header">Core Methods</a></li>
                 <li><a href="#dom-header">DOM</a></li>
                 <li><a href="#collections-header">Collections</a></li>
             </ul>
         </section>
+        <section>
+            <a href="#" class="top">top</a>
+            <h2><a name="collections-header">Core Methods</a></h2>
+            <p>This is a set of methods available at the core of Stress.</p>
+        </section>
+        <section class="container" id="container">
+<!-- START -->
+            <div class="code-chunk">
+                <header><b>include</b> external JavaScript files. These are files that are part of MVC library and should be in the /assets/js/framework folder.</header>
+                <pre class="sh_javascript">
+__.include({
+    model        : 'ModelName'    // file name 'model.ModelName.js'
+    , controller : 'ControllName' // file name: 'controller.ControllerName.js'
+    , view       : 'ViewName'     // file name: 'view.ViewName.js'
+});
+
+&lt;script src='/assets/js/framework/models/model.ModeName.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/controllers/controller.ControllerName.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/views/view.ViewName.js' type='text/javascript'&gt;&lt;/script&gt;
+
+To include multiple libraries, use Arrays
+__.include({
+    model        : ['ModelName', 'OtherModel']         // file name 'model.ModelName.js'
+    , controller : ['ControllName', 'OtherController'] // file name: 'controller.ControllerName.js'
+    , view       : ['ViewName', 'OtherView']           // file name: 'view.ViewName.js'
+});
+
+&lt;script src='/assets/js/framework/models/model.ModeName.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/models/model.OtherModel.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/controllers/controller.ControllerName.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/controllers/controller.OtherController.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/views/view.ViewName.js' type='text/javascript'&gt;&lt;/script&gt;
+&lt;script src='/assets/js/framework/views/view.OtherView.js' type='text/javascript'&gt;&lt;/script&gt;
+                </pre>
+            </div>
+<!-- END -->
+<!-- START -->
+            <div class="code-chunk">
+                <header><b>findPreviousOccurence</b> of needle in haystack</header>
+                <pre class="sh_javascript">
+var Str = 'the brown fox jumps over the lazy dog';
+foundChar = __.findPreviousOccurence(Str, 'x', 15); 
+// @return 11
+
+var Str = 'the brown fox jumps over the lazy dog';
+foundChar = __.findPreviousOccurence(Str, Array('x','u','v'), 25); 
+// @return Array(20, 'v');
+                </pre>
+            </div>
+            <script type="text/javascript">
+                console.log('________________________');
+                console.log('__.findNextOccurence()');
+
+                var Str = 'the brown fox jumps over the lazy dog';
+                foundChar = __.findPreviousOccurence(Str, 'x', 15); 
+                console.log(foundChar);
+
+                var Str = 'the brown fox jumps over the lazy dog';
+                foundChar = __.findPreviousOccurence(Str, Array('x','u','v'), 25); 
+                console.log(foundChar);
+            </script>
+<!-- END -->
+<!-- START -->
+            <div class="code-chunk">
+                <header><b>findNextOccurence</b> of needle in haystack</header>
+                <pre class="sh_javascript">
+var Str = 'the brown fox jumps over the lazy dog';
+foundChar = __.findNextOccurence(Str, 'x', 15); 
+// @return 11
+
+var Str = 'the brown fox jumps over the lazy dog';
+foundChar = __.findNextOccurence(Str, Array('x','u','v'), 25); 
+// @return Array(20, 'v');
+                </pre>
+            </div>
+            <script type="text/javascript">
+                console.log('________________________');
+                console.log('__.findNextOccurence()');
+                var Str = 'the brown fox jumps over the lazy dog';
+                foundChar = __.findNextOccurence(Str, 'x', 0); 
+                console.log(foundChar);
+
+                var Str = 'the brown fox jumps over the lazy dog';
+                foundChar = __.findNextOccurence(Str, Array('x','u','v'), 0); 
+                console.log(foundChar);
+            </script>
+<!-- END -->
+<!-- START -->
+            <div class="code-chunk">
+                <header><b>isNumeric</b> external JavaScript files</header>
+                <pre class="sh_javascript">
+var myNum = 12345;
+console.log(__.isNumeric(myNum));
+                </pre>
+            </div>
+            <script type="text/javascript">
+                console.log('________________________');
+                console.log('__.isNumeric()');
+                var myNum = 12345;
+                console.log(__.isNumeric(myNum));
+            </script>
+<!-- END -->
+<!-- START -->
+            <div class="code-chunk">
+                <header><b>removeStopWords</b> external JavaScript files</header>
+                <pre class="sh_javascript">
+var Str = 'the brown fox jumps over the lazy dog';
+console.log(__.removeStopWords(Str));
+                </pre>
+            </div>
+            <script type="text/javascript">
+                console.log('________________________');
+                console.log('__.removeStopWords()');
+                var Str = 'the brown fox jumps over the lazy dog';
+                console.log(__.removeStopWords(Str));
+            </script>
+                </pre>
+            </div>
+<!-- END -->
+        </section>
+
         <section>
             <a href="#" class="top">top</a>
             <h2><a name="collections-header">Collections</a></h2>
@@ -52,6 +174,32 @@ __.model.Collection.set({
 });
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.set()
+                // as an Object
+                __.model.Collection.set({
+                    name : 'MyCollectionObject',
+                    model : {
+                        Myarray   : [1,2,3],
+                        MyBoolean : true,
+                        MyNull     : null,
+                        MyNumber   : 123,
+                        MyObject   : {
+                            "a" : "b",
+                            "c" : "d",
+                            "e" : "f"
+                        },
+                        MyString : "Hello World"
+                    }
+                });
+                //
+                // as an Array
+                __.model.Collection.set({
+                    name : "MyCollectionArray",
+                    model : ['apple', 'orange', 'banana', 'pepper']
+                });
+            </script>
 <!-- 
     // SET 
 -->
@@ -74,6 +222,16 @@ var MyCollection = __.model.Collection.get("MyCollection");
 var MyCollection = __.model.Collection.get("MyCollection.MyObject");
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.get()
+                var MyCollection = __.model.Collection.get('MyCollectionObject');
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('get() method');
+                console.log(MyCollection);
+            </script>
 <!-- 
     // GET 
 -->
@@ -91,6 +249,15 @@ var MyCollection = __.model.Collection.get("MyCollection.MyObject");
 var MyCollectionSize = __.model.Collection.size("MyCollection");
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.size()
+                console.log(' ');
+                console.log('________________________');
+                console.log('size() method');
+                console.log('MyCollectionObject Size: ' + __.model.Collection.size('MyCollectionObject'));
+                console.log('MyCollectionArray Size: ' + __.model.Collection.size('MyCollectionArray'));
+            </script>
 <!-- 
     // GET 
 -->
@@ -119,6 +286,32 @@ __.model.Collection.insertInto("MyCollection", {
 });
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.insertInto()
+                //
+                // insertInto a MyCollectionArray
+                MyCollectionArray = __.model.Collection.insertInto(
+                    "MyCollectionArray", 
+                    "pear"
+                );
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('insetInto() method on an Array')
+                console.log(MyCollectionArray);
+                //
+                // insertInto a MyCollectionObject
+                MyCollectionObject = __.model.Collection.insertInto(
+                    "MyCollectionObject", 
+                    { key : "ThisNewKey" , value : "Is Awesome" }
+                );
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('insertInto() method on an Object')
+                console.log(MyCollectionObject);
+            </script>
 <!-- 
     // insertInto 
 -->
@@ -142,6 +335,34 @@ __.model.Collection.update(
 );
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.update()
+                // update a MyCollectionObject
+                MyCollectionArray = __.model.Collection.update(
+                    "MyCollectionArray", 
+                    { index : 3 , equals : "green pepper" }
+                );
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('update() method on an Array')
+                console.log(MyCollectionArray);
+                
+                //
+                // __.model.Collection.update()
+                // update a MyCollectionArray
+                MyCollectionObject = __.model.Collection.update(
+                    "MyCollectionObject", 
+                    { key : "ThisNewKey" , equals : "Is Awesome" },
+                    { "ThisNewKey" : "Has Totally Changed" }
+                );
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('update() method on an Object')
+                console.log(MyCollectionObject);
+            </script>
 <!-- 
     // update 
 -->
@@ -213,6 +434,40 @@ __.model.Collection.deleteFrom("MyCollectionArray", "orange");
 // @MyCollectionArray == Array('apple', 'banana', 'pepper')
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.deleteFrom()
+                // deleteFrom a MyCollectionArray
+                MyCollectionArray = __.model.Collection.deleteFrom("MyCollectionArray", "banana");
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('delete() method on an Array')
+                console.log(MyCollectionArray);
+
+                //
+                // __.model.Collection.deleteFrom()
+                // deleteFrom a MyCollectionObject
+                __.model.Collection.set({
+                    name : "MyCollectionObject",
+                    model : Array(
+                        { Id : 0, Title : "A Title" }, 
+                        { Id : 1, Title : "Another Object"}, 
+                        { Id : 2, Title : "This is cool"}, 
+                        { Id : 3, Title : "Another Test Object" } 
+                    )
+                });
+
+                MyCollectionObject = __.model.Collection.deleteFrom(
+                    "MyCollectionObject", 
+                    { key : "Id" , equals : 2 }
+                );
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('delete() method on an Object')
+                console.log(MyCollectionObject);
+            </script>
 <!-- 
     // deleteFrom 
 -->
@@ -275,6 +530,62 @@ __.model.Collection.search({
 // @returns 2 records Array({Id : 2, Title : 'This is cool' }, { Id : 3, Title : 'Another Test Object' });
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.search()
+                // search() method without a NotIn list
+                __.model.Collection.set({
+                    name : "MyCollection",
+                    model : Array(
+                        { Id : 0, Title : "A Title" }, 
+                        { Id : 1, Title : "Another Object"}, 
+                        { Id : 2, Title : "This is cool"}, 
+                        { Id : 3, Title : "Another Test Object" } 
+                    )
+                });
+                var MySearchedCollection = __.model.Collection.search({
+                    Collection : 'MyCollection',
+                    Where      : { key : "Title", equals : "Another"},
+                    RemoveStopWords : false
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('search() method');
+                console.log(MySearchedCollection);
+
+
+                //
+                // __.model.Collection.search()
+                // search() method with a NotIn list
+                ComparedAgainst  = Array(0,2,3,4,5);
+                var MySearchedCollection = __.model.Collection.search({
+                    Collection : 'MyCollection',
+                    Where      : { key : "Title", equals : "Another"},
+                    NotIn      : { list : ComparedAgainst, CollectionKey : "Id" },
+                    RemoveStopWords : false
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('search() method with a NotIn list');
+                console.log(MySearchedCollection);
+
+                //
+                // __.model.Collection.search()
+                // search() method with Evals property
+                Evals = Array();
+                Evals.push({ Key : 'Id', Operator : '>=', Value : 2 })
+                var MySearchedCollection = __.model.Collection.search({
+                    Collection : "MyCollection", 
+                    Evals      : Array({ Key : 'Id', Operator : '>=', Value : 2 })
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('search() method with Evals property');
+                console.log(MySearchedCollection);
+            </script>
 <!-- 
     // search 
 -->
@@ -307,6 +618,26 @@ __.model.collection.forEach("MyCollection", function(Item, Index) {
 });
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.forEach()
+                __.model.Collection.set({
+                    name : "MyCollection",
+                    model : Array(
+                        { Id : 0, Title : "A Title" }, 
+                        { Id : 1, Title : "Another Object"},
+                        { Id : 2, Title : "This is cool"},
+                        { Id : 3, Title : "Another Test Object" }
+                    )
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('forEach() method');
+                __.model.Collection.forEach("MyCollection", function(Item, Index) {
+                    console.log(Item.Id + ': ' + Item.Title);
+                }); 
+            </script>
 <!-- 
     // forEach 
 -->
@@ -348,6 +679,31 @@ var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", { "Title" : 
 //    { Id : 2, Title : "This is cool"}
                 </pre>
             </div>
+            <script type="text/javascript">
+                //
+                // __.model.Collection.sortBy()
+                __.model.Collection.set({
+                    name : "MyCollection",
+                    model : Array(
+                        { Id : 0, Title : "A Title" }, 
+                        { Id : 3, Title : "Another Test Object" },
+                        { Id : 2, Title : "This is cool"},
+                        { Id : 1, Title : "Another Object"} 
+                    )
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('sortBy() method (example: by Id)');
+                var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Id");
+                console.log(MyCollectionSorted);
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('sortBy() method (example: by Title');
+                var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Title");
+                console.log(MyCollectionSorted);
+            </script>
 <!-- 
     // forEach 
 -->
@@ -396,6 +752,47 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
 // @returns true|false
                 </pre>
             </div>
+            <script type="text/javascript">
+                __.model.Collection.set({
+                    name : "MyCollectionPrototype",
+                    model : {
+                        MyArray : { Type : Array() },
+                        MyBoolean : { Type : Boolean() },
+                        MyNull : { Type : String() },
+                        MyNumber : { Type: Number() },
+                        MyObject : {
+                            "a" : { Type : Object() },
+                            "c" : { Type : Object() },
+                            "e" : { Type : Array() }
+                        },
+                        MyString : { Type: String() }
+                    } 
+                });
+
+
+                __.model.Collection.set({
+                    name : "MyCollection",
+                    model : {
+                        MyArray : Array(1,2,3),
+                        MyBoolean : true,
+                        MyNull : "",
+                        MyNumber : 123,
+                        MyObject : {
+                            "a" : {},
+                            "c" : {},
+                            "e" : []
+                        },
+                        MyString : "String Text"
+                    }
+                });
+
+                console.log(' ');
+                console.log('________________________');
+                console.log('isValid() method');
+                var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
+
+                console.log(isMyCollectionValid);
+            </script>
 <!-- 
     // forEach 
 -->
@@ -540,7 +937,6 @@ __.model.toDOM({
     </section>
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-    <script type="text/javascript" src="__.js"></script>
     <script type="text/javascript">
 
         $(document).ready(function() {
@@ -629,277 +1025,6 @@ __.model.toDOM({
             });
 
         });
-
-        //
-        // __.model.Collection.set()
-        // as an Object
-        __.model.Collection.set({
-            name : 'MyCollectionObject',
-            model : {
-                Myarray   : [1,2,3],
-                MyBoolean : true,
-                MyNull     : null,
-                MyNumber   : 123,
-                MyObject   : {
-                    "a" : "b",
-                    "c" : "d",
-                    "e" : "f"
-                },
-                MyString : "Hello World"
-            }
-        });
-        //
-        // as an Array
-        __.model.Collection.set({
-            name : "MyCollectionArray",
-            model : ['apple', 'orange', 'banana', 'pepper']
-        });
-
-        //
-        // __.model.Collection.get()
-        var MyCollection = __.model.Collection.get('MyCollectionObject');
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('get() method');
-        console.log(MyCollection);
-
-        //
-        // __.model.Collection.size()
-        console.log(' ');
-        console.log('________________________');
-        console.log('size() method');
-        console.log('MyCollectionObject Size: ' + __.model.Collection.size('MyCollectionObject'));
-        console.log('MyCollectionArray Size: ' + __.model.Collection.size('MyCollectionArray'));
-
-        //
-        // __.model.Collection.insertInto()
-        //
-        // insertInto a MyCollectionArray
-        MyCollectionArray = __.model.Collection.insertInto(
-            "MyCollectionArray", 
-            "pear"
-        );
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('insetInto() method on an Array')
-        console.log(MyCollectionArray);
-        //
-        // insertInto a MyCollectionObject
-        MyCollectionObject = __.model.Collection.insertInto(
-            "MyCollectionObject", 
-            { key : "ThisNewKey" , value : "Is Awesome" }
-        );
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('insertInto() method on an Object')
-        console.log(MyCollectionObject);
-
-        //
-        // __.model.Collection.update()
-        // insertInto a MyCollectionObject
-        MyCollectionArray = __.model.Collection.update(
-            "MyCollectionArray", 
-            { index : 3 , equals : "green pepper" }
-        );
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('update() method on an Array')
-        console.log(MyCollectionArray);
-
-        //
-        // __.model.Collection.update()
-        // insertInto a MyCollectionArray
-        MyCollectionObject = __.model.Collection.update(
-            "MyCollectionObject", 
-            { key : "ThisNewKey" , equals : "Is Awesome" },
-            { "ThisNewKey" : "Has Totally Changed" }
-        );
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('update() method on an Object')
-        console.log(MyCollectionObject);
-
-        //
-        // __.model.Collection.deleteFrom()
-        // deleteFrom a MyCollectionArray
-        MyCollectionArray = __.model.Collection.deleteFrom("MyCollectionArray", "banana");
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('delete() method on an Array')
-        console.log(MyCollectionArray);
-
-        //
-        // __.model.Collection.deleteFrom()
-        // deleteFrom a MyCollectionObject
-        __.model.Collection.set({
-            name : "MyCollectionObject",
-            model : Array(
-                { Id : 0, Title : "A Title" }, 
-                { Id : 1, Title : "Another Object"}, 
-                { Id : 2, Title : "This is cool"}, 
-                { Id : 3, Title : "Another Test Object" } 
-            )
-        });
-
-        MyCollectionObject = __.model.Collection.deleteFrom(
-            "MyCollectionObject", 
-            { key : "Id" , equals : 2 }
-        );
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('delete() method on an Object')
-        console.log(MyCollectionObject);
-
-
-
-        //
-        // __.model.Collection.search()
-        // search() method without a NotIn list
-        __.model.Collection.set({
-            name : "MyCollection",
-            model : Array(
-                { Id : 0, Title : "A Title" }, 
-                { Id : 1, Title : "Another Object"}, 
-                { Id : 2, Title : "This is cool"}, 
-                { Id : 3, Title : "Another Test Object" } 
-            )
-        });
-        var MySearchedCollection = __.model.Collection.search({
-            Collection : 'MyCollection',
-            Where      : { key : "Title", equals : "Another"},
-            RemoveStopWords : false
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('search() method');
-        console.log(MySearchedCollection);
-
-
-        //
-        // __.model.Collection.search()
-        // search() method with a NotIn list
-        ComparedAgainst  = Array(0,2,3,4,5);
-        var MySearchedCollection = __.model.Collection.search({
-            Collection : 'MyCollection',
-            Where      : { key : "Title", equals : "Another"},
-            NotIn      : { list : ComparedAgainst, CollectionKey : "Id" },
-            RemoveStopWords : false
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('search() method with a NotIn list');
-        console.log(MySearchedCollection);
-
-        //
-        // __.model.Collection.search()
-        // search() method with Evals property
-        Evals = Array();
-        Evals.push({ Key : 'Id', Operator : '>=', Value : 2 })
-        var MySearchedCollection = __.model.Collection.search({
-            Collection : "MyCollection", 
-            Evals      : Array({ Key : 'Id', Operator : '>=', Value : 2 })
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('search() method with Evals property');
-        console.log(MySearchedCollection);
-
-
-        //
-        // __.model.Collection.forEach()
-        __.model.Collection.set({
-            name : "MyCollection",
-            model : Array(
-                { Id : 0, Title : "A Title" }, 
-                { Id : 1, Title : "Another Object"},
-                { Id : 2, Title : "This is cool"},
-                { Id : 3, Title : "Another Test Object" }
-            )
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('forEach() method');
-        __.model.Collection.forEach("MyCollection", function(Item, Index) {
-            console.log(Item.Id + ': ' + Item.Title);
-        }); 
-
-        //
-        // __.model.Collection.sortBy()
-        __.model.Collection.set({
-            name : "MyCollection",
-            model : Array(
-                { Id : 0, Title : "A Title" }, 
-                { Id : 3, Title : "Another Test Object" },
-                { Id : 2, Title : "This is cool"},
-                { Id : 1, Title : "Another Object"} 
-            )
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('sortBy() method (example: by Id)');
-        var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Id");
-        console.log(MyCollectionSorted);
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('sortBy() method (example: by Title');
-        var MyCollectionSorted = __.model.Collection.sortBy("MyCollection", "Title");
-        console.log(MyCollectionSorted);
-
-
-
-        __.model.Collection.set({
-            name : "MyCollectionPrototype",
-            model : {
-                MyArray : { Type : Array() },
-                MyBoolean : { Type : Boolean() },
-                MyNull : { Type : String() },
-                MyNumber : { Type: Number() },
-                MyObject : {
-                    "a" : { Type : Object() },
-                    "c" : { Type : Object() },
-                    "e" : { Type : Array() }
-                },
-                MyString : { Type: String() }
-            } 
-        });
-
-
-        __.model.Collection.set({
-            name : "MyCollection",
-            model : {
-                MyArray : Array(1,2,3),
-                MyBoolean : true,
-                MyNull : "",
-                MyNumber : 123,
-                MyObject : {
-                    "a" : {},
-                    "c" : {},
-                    "e" : []
-                },
-                MyString : "String Text"
-            }
-        });
-
-        console.log(' ');
-        console.log('________________________');
-        console.log('isValid() method');
-        var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
-
-        console.log(isMyCollectionValid);
-
     </script>
 </body>
 </html>
