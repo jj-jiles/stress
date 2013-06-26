@@ -19,12 +19,18 @@
             <h1>Documentation of the Stress Framework</h1>
         </header>
         <section>
-            <p><a href="https://github.com/jj-jiles/stress">View on GitHub</a></p>
+            <ul>
+                <li><a href="https://github.com/jj-jiles/stress">View on GitHub</a></li>
+                <li><a href="#dom-header">DOM</a></li>
+                <li><a href="#collections-header">Collections</a></li>
+            </ul>
+        </section>
         <section>
-            <h2>Collections</h2>
+            <a href="#" class="top">top</a>
+            <h2><a name="collections-header">Collections</a></h2>
             <p>The core of the the Stress framework is Collections. Collections allow the view to work with data models and manipulate them when needed.</p>
         </section>
-        <section id="container">
+        <section class="container" id="container">
 <!-- SET -->
             <div class="code-chunk">
                 <header><b>Set</b> a Collection</header>
@@ -394,8 +400,235 @@ var isMyCollectionValid = __.model.Collection.isValid("MyCollection");
     // forEach 
 -->
     </section>
+
+    <section>
+        <a href="#" class="top">top</a>
+        <h2><a name="dom-header">DOM</a></h2>
+        <p>DOM class of Stress</p>
+    </section>
+    <section class="container" id="container2">
+        <div class="code-chunk">
+            <header><b>toModel</b> method. Using a DOM object to create a Collection</header>
+            <p>The DOM Element that will be read and stored in a Collection: The LI elements are read and stored in a Collection named 'MyModel'.</p>
+            <ul id="SomeUL">
+                <li data-ItemId="0" class="SomeLI" data-description="hello there li">Hello There</li>
+                <li data-ItemId="1" class="SomeLI">Hello There 1</li>
+                <li data-ItemId="2" class="SomeLI">Hello There 2</li>
+                <li data-ItemId="3" class="SomeLI">Hello There 3</li>
+            </ul>
+            <pre class="sh_javascript">
+//
+// __.dom.toModel()
+// reads a DOM object and adds it to the model's Collection
+//
+// @selector : [object][required]
+// jQuery pointer for DOM object
+//
+// @ModelName : [string][required]
+// name of the model you want to store the DOM object
+//
+// @SetDOMObject : [bool][optional]
+// whether or not to store the DOM reference in the model
+//
+// @GetAttributes : [array][optional]
+// an array of attributes you want stored. These are attributes for element in the DOM object. 
+// NOTE: By default, all attributes are read and stored. This will override behavior and store only the attributes specified
+//
+// @callback : [function][optional]
+// callback function to be fired after the DOM object has been stored in the Collection
+//
+__.dom.toModel({
+    selector     : $('#SomeUL> li'),
+    ModelName    : 'MyModel',
+    SetDOMObject : false,
+    // GetAttributes  : [
+    //     'data-itemid',
+    //     'class'
+    // ],
+    callback : function() {
+        $('#SomeUL> li').bind('click', function() { alert('hello'); });
+    }
+});
+
+console.log(__.model.Collection.get('MyModel'));
+// @returns
+// [
+//    0 : { 
+//        html : "Hello There",
+//        attributes : {
+//            class : "SomeLI", 
+//            data-description : "hello there li",
+//            data-itemid : 0 
+//    },
+//    1 : { 
+//        html : "Hello There 1",
+//        attributes : {
+//            class : "SomeLI", 
+//            data-itemid : 1 
+//    },
+//    2 : { 
+//        html : "Hello There 2",
+//        attributes : {
+//            class : "SomeLI", 
+//            data-itemid : 2 
+//    },
+//    3 : { 
+//        html : "Hello There 3",
+//        attributes : {
+//            class : "SomeLI", 
+//            data-itemid : 3 
+//    }
+// ]
+
+            </pre>
+        </div>
+        <div class="code-chunk">
+            <header><b>toDOM</b> method. Using a Collection to create a DOM object and output to HTML.</header>
+            <p>The DOM Element that is populated by the Collection: The LI elements are created using the 'MyModel' Collection.</p>
+            <ul id="OtherUL"></ul>
+            <pre class="sh_javascript">
+
+//
+// __.dom.toDOM()
+// reads a DOM object and adds it to the model's Collection
+//
+// @selector : [object][required]
+// jQuery pointer for DOM object
+//
+// @ModelName : [string][required]
+// name of the model you want to store the DOM object
+//
+// @TagName : [string][optional|required if no]
+//
+// @GetDOMObject : [bool][optional]
+// whether or not to store the DOM reference in the model
+//
+// @bindings : [array][optional]
+// specified events binds tied to element created from the model
+//
+// @IterationCallback : [function][optional]
+// overrides the built-in creation of each element. this allows you to write your own function for building your HTML based on the output from the specified model. 
+// NOTE: IterationCallback will override the bindings, GetDOMObject, and SetAttributes settings
+//
+// @callback : [function][optional]
+// callback function to be fired after the DOM object has been stored in the Collection
+//
+__.model.toDOM({
+    selector       : $('#OtherUL'),
+    ModelName      : 'MyModel',
+    TagName        : 'li',
+    GetDOMObject   : false,
+    SetAttributes  : [
+        'data-itemid',
+        'class'
+    ],
+    bindings : [
+        { 'click': function(event) { alert($(event.target).text()); } }
+    ],
+    IterationCallback : function(event, Item, Index) {
+        $('#OtherUL').append("&lt;li&gt;" + Item.html + "&lt;/li&gt;");
+    },
+    callback : function(event) {
+        $('#OtherUL> li').on('click', function() { 
+            alert($(this).text());
+        });
+    }
+});
+            </pre>
+        </div>
+
+    </section>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script type="text/javascript" src="__.js"></script>
     <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            //
+        // __.dom.toModel()
+        // reads a DOM object and adds it to the model's Collection
+        //
+        // @selector : [object][required]
+        // jQuery pointer for DOM object
+        //
+        // @ModelName : [string][required]
+        // name of the model you want to store the DOM object
+        //
+        // @SetDOMObject : [bool][optional]
+        // whether or not to store the DOM reference in the model
+        //
+        // @GetAttributes : [array][optional]
+        // an array of attributes you want stored. These are attributes for element in the DOM object. 
+        // NOTE: By default, all attributes are read and stored. This will override behavior and store only the attributes specified
+        //
+        // @callback : [function][optional]
+        // callback function to be fired after the DOM object has been stored in the Collection
+        //
+            __.dom.toModel({
+                selector     : $('#SomeUL> li'),
+                ModelName    : 'MyModel',
+                SetDOMObject : false,
+                // GetAttributes  : [
+                //     'data-itemid',
+                //     'class'
+                // ],
+                callback : function() {
+                    $('#SomeUL> li').bind('click', function() { alert('hello'); });
+                }
+            });
+
+            console.log(__.model.Collection.get('MyModel'));
+
+
+            //
+            // __.dom.toModel()
+            // reads a Collection and creates the HTML object
+            //
+            // @selector : [object][required]
+            // jQuery pointer for DOM object
+            //
+            // @ModelName : [string][required]
+            // name of the model you want to store the DOM object
+            //
+            // @TagName : [string][optional|required if no]
+            //
+            // @GetDOMObject : [bool][optional]
+            // whether or not to store the DOM reference in the model
+            //
+            // @bindings : [array][optional]
+            // specified events binds tied to element created from the model
+            //
+            // @IterationCallback : [function][optional]
+            // overrides the built-in creation of each element. this allows you to write your own function for building your HTML based on the output from the specified model. 
+            // NOTE: IterationCallback will override the bindings, GetDOMObject, and SetAttributes settings
+            //
+            // @callback : [function][optional]
+            // callback function to be fired after the DOM object has been stored in the Collection
+            //
+            __.model.toDOM({
+                selector       : $('#OtherUL'),
+                ModelName      : 'MyModel',
+                TagName        : 'li',
+                GetDOMObject   : false,
+                SetAttributes  : [
+                    'data-itemid',
+                    'class'
+                ],
+                bindings : [
+                    { 'click': function(event) { alert($(event.target).text()); } }
+                ],
+                IterationCallback : function(event, Item, Index) {
+                    $('#OtherUL').append('<li>' + Item.html + '</li>');
+                },
+                callback : function(event) {
+                    $('#OtherUL> li').on('click', function() { 
+                        alert($(this).text());
+                    });
+                }
+            });
+
+        });
 
         //
         // __.model.Collection.set()

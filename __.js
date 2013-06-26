@@ -138,6 +138,96 @@ var __ = {
 
 
 
+
+		/**
+            __.dom.toModel({
+                selector       : $('#SomeUL> li'),
+                ModelName      : 'MyModel',
+                StoreDOMObject : true,
+                attributes     : [
+                    'data-ItemId',
+                    'class'
+                ],
+                bindings : [
+                    { 'mouseover': function() { alert('hello'); } }
+                ]
+            });
+		*/
+		toDOM : function(options) {
+			var self = this
+				, model = Array()
+				, defaults = {
+					GetDOMObject : false,
+					SetAttributes : Array(),
+					bindings : Array()
+				}
+				, options = __.setDefaults(options, defaults)
+				, SetSpecificAttrs = ( options.SetAttributes.length > 0)
+				, selector = options.selector;
+
+
+			var hasIterationCallback = ( options.hasOwnProperty('IterationCallback') && typeof options.IterationCallback === 'function' );
+
+			__.model.Collection.forEach(options.ModelName, function(Item, Index) {
+
+				if ( hasIterationCallback ) {
+					options.IterationCallback(event, Item, Index);
+				} else {
+
+					if ( Item.hasOwnProperty('self') && options.GetDOMObject ) {
+						selector.append(Item.self[0]);
+
+					} else {
+						var el = $(document.createElement(options.TagName));
+
+						for ( var prop in Item) {
+							switch(prop) {
+								case 'html' :
+									el.html(Item[prop]);
+									break;
+
+								case 'val' :
+									el.val(Item[prop]);
+									break;
+							}
+						}
+
+
+						for ( var prop in Item.attributes ) {
+							var AttrName      = prop
+								, AttrValue   = Item.attributes[prop]
+								, SetThisAttr = (options.SetAttributes.indexOf(AttrName) > -1);
+							if ( !SetSpecificAttrs || (SetSpecificAttrs && SetThisAttr) ) {
+								el.attr(AttrName, AttrValue);
+							}
+						}
+
+						$(el).appendTo(selector);
+
+						for ( var ii=0; ii<options.bindings.length; ii++) {
+							var binding = options.bindings[ii];
+							for ( var prop in binding ) {
+								var EventName = prop;
+								var EventCallback = binding[prop];
+								$(el).unbind(EventName).bind(EventName, function(event) {
+									EventCallback(event);
+								});
+							}
+						}
+					}
+				}
+
+				if ( options.hasCallback ) {
+					options.callback(event);
+				}
+
+			});
+
+		},
+
+
+
+
 		/**
 			@namespace
 			Collection is a helper class that will
@@ -1074,6 +1164,113 @@ var __ = {
 				}	
 			}
 		}		
+	},
+	/* ******
+	*
+	* End
+	*
+	********************************************** */
+
+
+
+
+
+
+
+	
+	/* **********************************************
+	*
+	*
+	****** */
+	dom : {
+		extend : function(source, methods) {
+			if ( typeof  this[source] == 'undefined' ) {
+				this[source] = methods;
+			} else {
+				for ( var prop in methods ) {
+					this[source][prop] = methods[prop];
+				}	
+			}
+		}
+
+
+
+		/**
+            __.dom.toModel({
+                selector       : $('#SomeUL> li'),
+                ModelName      : 'MyModel',
+                StoreDOMObject : true,
+                attributes     : [
+                    'data-ItemId',
+                    'class'
+                ],
+                bindings : [
+                    { 'mouseover': function() { alert('hello'); } }
+                ]
+            });
+		*/
+		, toModel : function(options) {
+			var self = this
+				, model = Array()
+				, defaults = {
+					SetDOMObject : true,
+					GetAttributes : Array(),
+					bindings : Array()
+				}
+				, options = __.setDefaults(options, defaults)
+				, SetSpecificAttrs = ( options.GetAttributes.length > 0);
+
+			options.selector.each(function() {
+				var _this = $(this),
+				row = {
+					html : _this.html(),
+					attributes : {}
+				}
+
+				//
+				// Loop through all attributes in the element and add them to the attributes property
+				var el = $(this)[0];
+				for (var i=0, attrs=el.attributes, l=attrs.length; i<l; i++){
+					GetThisAttr = (options.GetAttributes.indexOf(attrs.item(i).nodeName) > -1);
+					if ( !SetSpecificAttrs || (SetSpecificAttrs && GetThisAttr) ) {
+						row.attributes[attrs.item(i).nodeName] = attrs.item(i).nodeValue;
+					}
+				}
+
+				//
+				// If a reference to the DOM object is to be kept, add to self property
+				if (options.SetDOMObject) {
+					row.self = _this;
+				}
+
+				//
+				// Add any bindings specified
+				for ( var ii=0; ii<options.bindings.length; ii++) {
+					var binding = options.bindings[ii];
+
+					for ( var prop in binding ) {
+						var EventName = prop;
+						var EventCallback = binding[prop];
+						_this.unbind(EventName).bind(EventName, function() {
+							EventCallback();
+						});
+					}
+				}
+
+				model.push(row);
+
+			});
+
+			__.model.Collection.set({
+				name : options.ModelName,
+				model : model
+			});
+
+			if ( options.hasCallback ) {
+				options.callback();
+			}
+
+		}
 	},
 	/* ******
 	*

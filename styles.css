@@ -21,6 +21,11 @@ body {
 }
 
 header { font-size: 16px; font-family: 'ArimoRegular'; padding: 0; margin: 0; }
+
+.top { float: right; margin-top: 15px; color: #1993CB; }
+
+a, a:visited, a:active, a:hover { color: #1993CB; }
+
 h1, h2, h3, h4, h5, h6 { padding: 4px 0; margin: 0; }
 
 h1 { padding: 20px 0; }
@@ -28,13 +33,17 @@ h1 { padding: 20px 0; }
 h2 { margin: 0; padding: 20px 0 0 0; line-height: 0; }
 p { padding: 0 0 18px 0; line-height: 14px; }
 
+.container { border-bottom: 1px solid #e3e3e3; padding-bottom: 50px; margin-bottom: 30px; }
+
 .code-chunk { 
 	/*box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 	-webkit-box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 	-moz-box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);*/
 }
 
-.code-chunk header { font-size: 16px; font-family: 'ArimoRegular'; padding: 14px 0 0 0; margin: 0; }
+.code-chunk ul { margin-top: -18px; padding-top: 0; }
+
+.code-chunk header { font-size: 16px; font-family: 'ArimoRegular'; padding: 24px 0 0 0; margin: 0; }
 .code-chunk pre { 
 	font-family: 'OpenSansRegular';
 	display: block;
