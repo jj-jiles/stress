@@ -1,0 +1,56 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Stress Documentation</title> 
+    <link rel="stylesheet" type="text/css" href="fonts.css" />
+    <link rel="stylesheet" type="text/css" href="normalize.css" />
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+<body>
+    <section id="wrapper">
+        View the browser console to see results
+    </section>
+    <script type="text/javascript" src="__.js"></script>
+    <script type="text/javascript">
+        var queue = new Queue();
+        p1 = function() {
+                window.setTimeout(function() {
+                    try {
+                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p1 fired</p>');
+                        queue.resolve();
+                    } catch(err) {
+                        queue.fail(err);
+                    }
+                }, 1000);
+        }
+
+        p2 = function() {
+                window.setTimeout(function() {
+                    try {
+                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p2 fired</p>');
+                        queue.resolve();
+                    } catch(err) {
+                        queue.fail(err);
+                    }
+                }, 1500);
+        }
+
+        p3 = function() {
+                window.setTimeout(function() {
+                    try {
+                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p3 fired</p>');
+                        queue.resolve();
+                    } catch(err) {
+                        queue.fail(err);
+                    }
+                }, 500);
+        }
+
+        queue
+            .when(p1)
+            .then(p2)
+            .then(p3);
+    </script>
+</body>
+</html>

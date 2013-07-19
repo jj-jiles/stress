@@ -154,31 +154,49 @@ var __ = {
             });
 		*/
 		toDOM : function(options) {
-			var self = this
-				, model = Array()
+			var self       = this
+				, model    = Array()
 				, defaults = {
-					GetDOMObject : false,
+					GetDOMObject  : false,
 					SetAttributes : Array(),
-					bindings : Array()
+					bindings      : Array(),
+					ClearSelctor  : false
 				}
-				, options = __.setDefaults(options, defaults)
-				, SetSpecificAttrs = ( options.SetAttributes.length > 0)
-				, selector = options.selector;
-
+				, options  = __.setDefaults(options, defaults)
+				, selector = options.selector
+				, SetSpecificAttrs = ( options.SetAttributes.length > 0);
 
 			var hasIterationCallback = ( options.hasOwnProperty('IterationCallback') && typeof options.IterationCallback === 'function' );
+
+			if ( options.ClearSelector ) {
+				selector.html('');
+			}
 
 			__.model.Collection.forEach(options.ModelName, function(Item, Index) {
 
 				if ( hasIterationCallback ) {
 					options.IterationCallback(event, Item, Index);
+
 				} else {
 
 					if ( Item.hasOwnProperty('self') && options.GetDOMObject ) {
 						selector.append(Item.self[0]);
 
 					} else {
-						var el = $(document.createElement(options.TagName));
+
+						if ( options.hasOwnProperty('HTML') ) {
+							var _html = options.HTML;
+
+							for ( var prop in Item ) {
+								ReplaceWhat = new RegExp('%%' + prop + '%%', "g");
+								ReplaceWith = Item[prop];
+								_html = _html.replace(ReplaceWhat, ReplaceWith);
+							}
+							var el = $(_html).appendTo(selector);
+						} else {
+							var el = $(document.createElement(options.TagName));
+
+						}
 
 						for ( var prop in Item) {
 							switch(prop) {
@@ -217,11 +235,11 @@ var __ = {
 					}
 				}
 
-				if ( options.hasCallback ) {
-					options.callback(event);
-				}
-
 			});
+
+			if ( options.hasCallback ) {
+				options.callback(event);
+			}
 
 		},
 
@@ -2013,6 +2031,68 @@ var __ = {
 
 
 };
+
+
+
+
+
+
+
+
+
+
+/* *********************************************************
+*
+* Queue class
+*
+*/
+var Queue = function() {
+    this._stack = [];
+}
+
+
+Queue.prototype = {
+
+    when : function(fn) {  
+        window.setTimeout(fn, 0); 
+        return this;
+    },
+
+    then : function(fn) { 
+        this._stack.push(fn); 
+        return this;
+    },
+
+    deny : function(message) {
+    	console.log('There was an error: ' + message);
+    	console.log('Next process in stack: ' + this._stack.shift());
+    	return this;
+    },
+
+    fail : function(err) {
+    	console.log('There was an error: ' + err.message);
+    	console.log('Next process in stack: ' + this._stack.shift());
+    	return this;
+    },
+
+    resolve : function(resp) {
+    	this._response = resp;
+        var stacksLeft = this._stack.length;
+        if ( stacksLeft > 0 ) {
+            this._stack.shift()(resp);
+        }
+        return this;
+    }
+}
+/*
+*
+* End: Queue
+*
+********************************************************* */
+
+
+
+
 
 
 
