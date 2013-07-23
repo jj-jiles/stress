@@ -770,6 +770,11 @@ var __ = {
 					}
 				}
 
+				//
+				// Search is sent as an empty string. return the entire collection
+				if ( KeywordsList == '' ) {
+					return options.Collection;
+				}
 
 				this.forEach(options.Collection, function(Item, Index) {					
 					var strNeedle = String(Item[needle]).toLowerCase()
@@ -855,9 +860,11 @@ var __ = {
 						for ( var prop in options.Evals ) {
 							var _Eval = options.Evals[prop];
 							var Key   = _Eval.Key;
-							equation = '(Item["' + _Eval.Key + '"]' + _Eval.Operator + _Eval.Value + ')';
-							if ( eval(equation) ) {
-								TotalKeywordsFound++;
+							if ( _Eval.Operator != '=' ) {
+								equation = '(Item["' + _Eval.Key + '"]' + _Eval.Operator + _Eval.Value + ')';
+								if ( eval(equation) ) {
+									TotalKeywordsFound++;
+								}
 							}
 						}
 					}
@@ -961,15 +968,28 @@ var __ = {
 					key = String(KeyValue['key']);
 					val = KeyValue['value'];
 
-					if ( typeof collection[key] === 'undefined' ) {
-						if ( typeof(val) == 'object' ) {
-							collection[key] = val;
+					if ( collection instanceof Object ) {
+
+					// if ( collection instanceof Object ) {
+					// 	collection[key] = val;
+
+						if ( (typeof collection[key] != 'undefined') && collection[key] instanceof Array ) {
+							collection[key].push(val);
+
 						} else {
 							collection[key] = val;
+
 						}
 
-					} else {
-						collection[key].push(val);						
+					} else if ( collection instanceof Array ) {
+						try {
+							collection[key].push(val);
+						} catch(e) {
+							console.log('Problem pushing value to the provided key ("' + key + '" in Collection "' + Collection + '") name.');
+							var trace = printStackTrace();
+							//Output however you want!
+							console.log(trace.join('\n'));
+						}
 					}
 				
 				// key and value passed separately
@@ -1008,20 +1028,69 @@ var __ = {
 			update : function(Collection, where, newKeys) {
 				collection = this.returnCollection(Collection);
 
-				if ( where.index !== undefined ) {
-					
-					needle = parseInt(where['index']);
-					val    = where['equals'];
-					collection[needle] = val;
+				if ( where.hasOwnProperty('index') ) {
+					val = undefined;
+					needle = undefined;
 
-				} else {
+					//
+					// Set the needle to the specified index
+					if ( where.hasOwnProperty('index') ) {
+						needle = where['index'];
+
+						// needle is an index number, make it numeric
+						if ( __.isNumeric(needle) ) {
+							needle = parseInt(needle);
+						}
+
+					}
+
+					//
+					// If 'equals' is being passed instead of 'value'
+					if ( where.hasOwnProperty('equals') ) {
+						val = where['equals'] ;
+					}
+
+					//
+					// 'value' was passed
+					if ( where.hasOwnProperty('value') ) {
+						val = where['value'];
+					}
+
+					//
+					// No needle
+					if ( typeof needle === 'undefined' ) {
+						console.log("an 'index' was not passed to __.model.Collection.update()");
+						var trace = printStackTrace();
+						//Output however you want!
+						console.log(trace.join('\n'));
+
+					//
+					// no val
+					} else if ( typeof val === 'undefined' ) {
+						console.log("'equals' or 'value' was not passed to __.model.Collection.update()");
+						var trace = printStackTrace();
+						//Output however you want!
+						console.log(trace.join('\n'));
+
+					//
+					// everything passes, so update the object
+					} else {
+						collection[needle] = val;
+					}
+					
+
+				} else if ( where.hasOwnProperty('key') && where.hasOwnProperty('equals') ) {
 					needle = where['key'];
 					val    = where['equals'];
 
-					if ( collection instanceof Array ) {
+					if ( typeof where !== 'object' ) {
+						for ( var prop in newKeys ) {
+							collection[where][prop] = newKeys[prop];
+						}
+
+					} else if ( collection instanceof Array ) {
 						for ( var i=0; i<collection.length; i++ ) {
 							if ( typeof(collection[i][needle]) !== 'undefined' && collection[i][needle] == val ) {
-
 								for ( var prop in newKeys ) {
 									collection[i][prop] = newKeys[prop];
 								}
@@ -1033,12 +1102,15 @@ var __ = {
 							model : collection
 						});
 
-
 					} else if ( collection instanceof Object ) {
 						for ( var CollectionKey in collection ) {
-							if ( CollectionKey === key ) {
-								for ( var prop in newKeys ) {
-									collection[CollectionKey] = newKeys[prop];
+							if ( CollectionKey === needle ) {
+								for ( var ii in collection[CollectionKey] ) {
+									if ( ii == val ) {
+										for ( var prop in newKeys ) {
+											collection[CollectionKey][ii][prop] = newKeys[prop];
+										}
+									}
 								}
 							}
 						}
@@ -1046,8 +1118,15 @@ var __ = {
 						console.log('A key/value was not passed correctly.');
 						var trace = printStackTrace();
 						//Output however you want!
-						console.log(trace.join('\n\n'));
+						console.log(trace.join('\n'));
 					}
+
+				} else {
+					console.log('the __.model.Collection.update() was not called correctly');
+					var trace = printStackTrace();
+					//Output however you want!
+					console.log(trace.join('\n'));
+
 				}
 
 				return collection;
@@ -1347,6 +1426,14 @@ var __ = {
 	* End
 	*
 	********************************************** */
+
+
+
+
+
+	forEach : function(collection, callback, where, offset, rowCount) {
+		return self.model.Collection.forEach(collection, callback, where, offset, rowCount);
+	},
 
 
 
@@ -2047,11 +2134,13 @@ var __ = {
 *
 */
 var Queue = function() {
+	var self = this;
     this._stack = [];
 }
 
 
 Queue.prototype = {
+
 
     when : function(fn) {  
         window.setTimeout(fn, 0); 

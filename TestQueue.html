@@ -6,18 +6,73 @@
     <link rel="stylesheet" type="text/css" href="fonts.css" />
     <link rel="stylesheet" type="text/css" href="normalize.css" />
     <link rel="stylesheet" type="text/css" href="styles.css" />
+    <link rel="stylesheet" type="text/css" href="NotPartOfFramework/CSS/sh_acid.css" />
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_main.min.js"></script>
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript.min.js"></script>
+    <script type="text/javascript" src="NotPartOfFramework/JS/sh_javascript_dom.min.js"></script>
 </head>
-<body>
+<body onload="sh_highlightDocument();">
     <section id="wrapper">
-        View the browser console to see results
+        <header>
+            <h1>Documentation of the Stress Framework Queue</h1>
+        </header>
+        <section class="container" id="container">
+            <div id="viewable-demo">
+                <h4>Calls added to queue and processed</h4>
+            </div>
+            <div class="code-chunk">
+                <header><b>Queue</b> class for deferring function and method calls.</header>
+                <pre class="sh_javascript">
+    var queue = new Queue();
+    p1 = function() {
+            window.setTimeout(function() {
+                try {
+                    document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '&lt;p&gt;p1 fired&lt;/p&gt;');
+                    queue.resolve();
+                } catch(err) {
+                    queue.fail(err);
+                }
+            }, 1000);
+    }
+
+    p2 = function() {
+            window.setTimeout(function() {
+                try {
+                    document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '&lt;p&gt;p2 fired&lt;/p&gt;');
+                    queue.resolve();
+                } catch(err) {
+                    queue.fail(err);
+                }
+            }, 1500);
+    }
+
+    p3 = function() {
+            window.setTimeout(function() {
+                try {
+                    document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '&lt;p&gt;p3 fired&lt;/p&gt;');
+                    queue.resolve();
+                } catch(err) {
+                    queue.fail(err);
+                }
+            }, 500);
+    }
+
+    queue
+        .when(p1)
+        .then(p2)
+        .then(p3);
+                </pre>
+            </div>
+        </section>
     </section>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
     <script type="text/javascript" src="__.js"></script>
     <script type="text/javascript">
         var queue = new Queue();
         p1 = function() {
                 window.setTimeout(function() {
                     try {
-                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p1 fired</p>');
+                        document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '<p>p1 fired</p>');
                         queue.resolve();
                     } catch(err) {
                         queue.fail(err);
@@ -28,7 +83,7 @@
         p2 = function() {
                 window.setTimeout(function() {
                     try {
-                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p2 fired</p>');
+                        document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '<p>p2 fired</p>');
                         queue.resolve();
                     } catch(err) {
                         queue.fail(err);
@@ -39,7 +94,7 @@
         p3 = function() {
                 window.setTimeout(function() {
                     try {
-                        document.getElementById('wrapper').insertAdjacentHTML('beforeend', '<p>p3 fired</p>');
+                        document.getElementById('viewable-demo').insertAdjacentHTML('beforeend', '<p>p3 fired</p>');
                         queue.resolve();
                     } catch(err) {
                         queue.fail(err);

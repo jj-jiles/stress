@@ -45,10 +45,12 @@ p { padding: 0 0 18px 0; line-height: 14px; }
 
 .code-chunk header { font-size: 16px; font-family: 'ArimoRegular'; padding: 24px 0 0 0; margin: 0; }
 .code-chunk pre { 
+	font-size: 11px;
 	font-family: 'OpenSansRegular';
 	display: block;
 	padding: 12px;
 	-webkit-border-radius: 4px;
 	background: #e3e3e3!important;
 	border: 1px solid #d3d3d3;
+	white-space: pre;
 }
